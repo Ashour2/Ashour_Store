@@ -84,6 +84,13 @@ return [
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
+    // arabic lang
+    // 'locale' => env('APP_LOCALE', 'ar'),
+
+    // 'fallback_locale' => env('APP_FALLBACK_LOCALE', 'ar'),
+
+    // 'faker_locale' => env('APP_FAKER_LOCALE', 'ar'),//en_US
+
     /*
     |--------------------------------------------------------------------------
     | Encryption Key
