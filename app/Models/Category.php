@@ -17,13 +17,14 @@ class Category extends Model
     function image(){
         return $this->morphOne(Image::class,'imageable');
     }
-    // function getImgPathAttribute() {
-    //     $url = 'https://via.placeholder.com/100x80';
+    // img_path
+    function getImgPathAttribute() {
+        $url = 'https://via.placeholder.com/100x80';
 
-    //     if($this->image) {
-    //         $url = asset('images/'. $this->image->path);
-    //     }
+        if($this->image) {
+            $url = asset('images/'. $this->image->path);
+        }
 
-    //     return $url;
-    // }
+        return $url;
+    }
 }

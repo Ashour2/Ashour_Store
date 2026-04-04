@@ -21,5 +21,6 @@ return [
     'Ashour_Store' => 'متجر عاشور',
 
      'contact' => 'الاتصال بنا',
-    'home' => 'الرئيسية '
+    'home' => 'الرئيسية ',
+    'All rights reserved.' => 'جميع الحقوق محفوظة'
 ];

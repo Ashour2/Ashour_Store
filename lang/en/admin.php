@@ -20,6 +20,8 @@ return [
     'out' => 'Logout',
     'Ashour_Store' => 'Ashour_Store',
     'contact' => 'Contact',
-    'home' => 'Home'
+    'home' => 'Home',
+    'All rights reserved.' => 'All rights reserved.'
+
 
 ];
