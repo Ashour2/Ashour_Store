@@ -33,28 +33,33 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            // 'name_ar' => 'required',
+            'name_en' => 'required',
+            'name_ar' => 'required',
             'image' => 'required'
         ]);
 
         $data = $request->except('_token', 'image');
 
         // dd($request->all());
+        $name = [
+            'en' => $request->name_en,
+            'ar' => $request->name_ar,
+        ];
 
-        // $desc = [
-        //     'en' => $request->description_en,
-        //     'ar' => $request->description_ar,
-        // ];
+        $desc = [
+            'en' => $request->description_en,
+            'ar' => $request->description_ar,
+        ];
 
         $category = Category::create([
-            'name' => $request->name,
-            'description' => $request->description
-            // json_encode($desc, JSON_UNESCAPED_UNICODE)
+            // 'name' => $request->name,
+            // 'description' => $request->description
+            'name' => json_encode($name, JSON_UNESCAPED_UNICODE),
+            'description' => json_encode($desc, JSON_UNESCAPED_UNICODE),
         ]);
 
         // Add image to relation
-        $img_name = rand().time().$request->file('image')->getClientOriginalName();
+        $img_name = rand() . time() . $request->file('image')->getClientOriginalName();
         $request->file('image')->move(public_path('images'), $img_name);
 
         $category->image()->create([
@@ -62,9 +67,9 @@ class CategoryController extends Controller
         ]);
 
         return redirect()
-        ->route('admin.categories.index')
-        ->with('msg', 'Category added successfully')
-        ->with('type', 'success');
+            ->route('admin.categories.index')
+            ->with('msg', 'Category added successfully')
+            ->with('type', 'success');
     }
 
     /**
@@ -90,28 +95,38 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $request->validate([
-            'name' => 'required',
-            // 'name_ar' => 'required'
-            // 'image'=>'required'
+            'name_en' => 'required',
+            'name_ar' => 'required'
         ]);
 
-        // $desc = [
-        //     'en' => $request->description_en,
-        //     'ar' => $request->description_ar,
-        // ];
+        $desc = [
+            'en' => $request->description_en,
+            'ar' => $request->description_ar,
+        ];
+        $name = [
+            'en' => $request->name_en,
+            'ar' => $request->name_ar,
+        ];
 
         $category->update([
-            'name' => $request->name,
-            'description' => $request->description
-            // json_encode($desc, JSON_UNESCAPED_UNICODE)
+            'name' => json_encode($name, JSON_UNESCAPED_UNICODE),
+            'description' => json_encode($desc, JSON_UNESCAPED_UNICODE)
         ]);
 
         // Add image to relation
+        if ($request->hasFile('image')) {
+    $img_name = rand().time().$request->file('image')->getClientOriginalName();
+    $request->file('image')->move(public_path('images'), $img_name);
+
+    $category->image()->update([
+        'path' => $img_name
+    ]);
+}
 
         return redirect()
-        ->route('admin.categories.index')
-        ->with('msg', 'Category updated successfully')
-        ->with('type', 'info');
+            ->route('admin.categories.index')
+            ->with('msg', 'Category updated successfully')
+            ->with('type', 'info');
     }
 
     /**
@@ -122,8 +137,8 @@ class CategoryController extends Controller
         $category->delete();
 
         return redirect()
-        ->route('admin.categories.index')
-        ->with('msg', 'Category deleted successfully')
-        ->with('type', 'danger');
+            ->route('admin.categories.index')
+            ->with('msg', 'Category deleted successfully')
+            ->with('type', 'danger');
     }
 }

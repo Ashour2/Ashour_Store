@@ -25,8 +25,9 @@
         <td>
             <img width="100" src="{{ $category->img_path }}" alt="">
         </td>
-        {{-- <td>{{ $category->trans_name }}</td> --}}
-        <td>{{ $category->name }}</td>
+        <td>{{ $category->trans_name }}</td>
+        {{-- <td>{{ $category->name }}</td> --}}
+        {{-- <td>{{json_decode($category->name,true)[app()->getLocale()] ?? ""}}</td> --}}
         <td>{{ $category->products_count }}</td>
         <td>
             <a class="btn btn-sm btn-primary" href="{{ route('admin.categories.edit', $category->id) }}"><i class="fas fa-edit"></i></a>

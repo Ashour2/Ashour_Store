@@ -38,20 +38,35 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
+            'name_en' => 'required',
+            'name_ar' => 'required',
             'image' => 'required',
             'gallery' => 'required',
             'price' => 'required',
-            'description' => 'required',
+            'description_en' => 'required',
+            'description_ar' => 'required',
             'quantity' => 'required',
             'category_id' => 'required',
         ]);
 
         // $data = $request->except('_token', 'image', 'gallery');
 
+        $name = [
+            'en' => $request->name_en,
+            'ar' => $request->name_ar,
+        ];
+
+        $desc = [
+            'en' => $request->description_en,
+            'ar' => $request->description_ar,
+        ];
+
         $product = Product::create([
-            'name' => $request->name,
-            'description' => $request->description,
+            // 'name' => $request->name,
+            // 'description' => $request->description,
+            'name'=> json_encode($name,JSON_UNESCAPED_UNICODE),
+            'description'=> json_encode($desc,JSON_UNESCAPED_UNICODE),
+
             'price' => $request->price,
             'quantity' => $request->quantity,
             'category_id' => $request->category_id,

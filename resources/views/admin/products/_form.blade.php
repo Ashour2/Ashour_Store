@@ -46,9 +46,18 @@
 <div class="row">
     <div class="col-md-6">
         <div class="mb-3">
-            <label>Name</label>
-            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" placeholder="Name" value="{{ old('name', $product->name) }}" />
-            @error('name')
+            <label>English Name</label>
+            <input type="text" name="name_en" class="form-control @error('name_en') is-invalid @enderror" placeholder="English Name" value="{{ old('name_en', $product->name_en) }}" />
+            @error('name_en')
+                <small class="invalid-feedback">{{ $message }}</small>
+            @enderror
+        </div>
+    </div>
+       <div class="col-md-6">
+        <div class="mb-3">
+            <label>Arabic Name</label>
+            <input type="text" name="name_ar" class="form-control @error('name_ar') is-invalid @enderror" placeholder="English Name" value="{{ old('name_ar', $product->name_ar) }}" />
+            @error('name_ar')
                 <small class="invalid-feedback">{{ $message }}</small>
             @enderror
         </div>
@@ -94,9 +103,18 @@
 
     <div class="col-md-6">
         <div class="mb-3">
-            <label>Description</label>
-            <textarea name="description" class="form-control @error('description') is-invalid @enderror" placeholder=" Description" rows="4">{{ old('description', $product->description) }}</textarea>
-            @error('description')
+            <label>English Description</label>
+            <textarea name="description_en" class="form-control @error('description_en') is-invalid @enderror" placeholder=" Description_en" rows="4">{{ old('description_en', $product->description_en) }}</textarea>
+            @error('description_en')
+                <small class="invalid-feedback">{{ $message }}</small>
+            @enderror
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="mb-3">
+            <label>Arabic Description</label>
+            <textarea name="description_ar" class="form-control @error('description_ar') is-invalid @enderror" placeholder=" Description_ar" rows="4">{{ old('description_ar', $product->description_ar) }}</textarea>
+            @error('description_ar')
                 <small class="invalid-feedback">{{ $message }}</small>
             @enderror
         </div>
