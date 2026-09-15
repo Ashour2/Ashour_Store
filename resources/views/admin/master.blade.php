@@ -1,10 +1,15 @@
+@php $rtl = app()->getLocale() == 'ar'; @endphp
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}" dir="{{ $rtl ? 'rtl' : 'ltr' }}">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'titleT')</title>
+    @if ($logo = logo_url())
+        <link rel="icon" href="{{ $logo }}">
+        <link rel="apple-touch-icon" href="{{ $logo }}">
+    @endif
 
     @yield('css')
     <link rel="stylesheet"
@@ -21,6 +26,32 @@
 <style>
         .img-profile {
             object-fit: cover
+        }
+        /* Logo row at the top of the sidebar. It is kept white with dark text
+           because the logo itself is dark: on the green sidebar it disappears. */
+        .brand-link {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            background: #fff;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .brand-link,
+        .brand-link:hover,
+        .brand-link .brand-text { color: #1f2d3d !important; }
+        .brand-link .brand-image {
+            float: none;
+            margin: 0;
+            max-height: 38px;
+            width: auto;
+            line-height: 1;
+            opacity: 1;
+        }
+        .brand-link .brand-text {
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .colors {
             width: 100px;
@@ -60,44 +91,80 @@
             cursor: pointer;
         }
     </style>
-
-    @if (App::getLocale() == 'ar')
+        {{-- {{ App::getLocal() }} --}}
+    @if ($rtl)
         <style>
-            .topbar .dropdown .dropdown-menu {
-                right: -60%;
-            }
-            body {
-                direction: rtl;
-                text-align: right;
+            /* ===== Admin RTL baseline ===== */
+            body { direction: rtl; text-align: right; }
+
+            /* Sidebar to the right */
+            .main-sidebar { right: 0 !important; left: auto !important; }
+            .sidebar { padding: 0; }
+            .sidebar .nav-item .nav-link { text-align: right; }
+
+            /* Push page content to the left of the right-aligned sidebar */
+            .content-wrapper,
+            .main-header.navbar,
+            .main-footer {
+                margin-right: 250px !important;
+                margin-left: 0 !important;
             }
 
-            .colors {
-                right: unset;
-                left: -60px;
+            /* Collapsed (mini) sidebar */
+            .sidebar-collapse .content-wrapper,
+            .sidebar-collapse .main-header.navbar,
+            .sidebar-collapse .main-footer {
+                margin-right: 4.6rem !important;
+                margin-left: 0 !important;
+            }
+            /* On mobile the sidebar slides off-canvas to the right */
+            @media (max-width: 991.98px) {
+                .content-wrapper,
+                .main-header.navbar,
+                .main-footer { margin-right: 0 !important; }
+                .main-sidebar {
+                    margin-left: 0 !important;
+                    transform: translateX(100%);
+                    transition: transform .3s ease-in-out;
+                }
+                .sidebar-open .main-sidebar { transform: translateX(0); }
             }
 
-            .colors.open {
-                right: unset;
-                left: 0;
+            /* Footer version block to the left in RTL */
+            .main-footer .float-right { float: left !important; }
+
+            /* Sidebar treeview expand/collapse arrow: point it toward the text (left edge) */
+            .nav-sidebar .nav-link > p > .right,
+            .nav-sidebar .nav-link > .right {
+                left: 1rem;
+                right: auto;
+                position: absolute;
+            }
+            .nav-sidebar .menu-open > .nav-link > p > .right,
+            .nav-sidebar .nav-link[aria-expanded="true"] > p > .right {
+                transform: rotate(-90deg);
             }
 
-            .sidebar {
-                padding: 0
-            }
+            /* Icon spacing (overrides the LTR default margin-right) */
+            .nav-sidebar .nav-icon { margin-left: .5rem; margin-right: 0; }
+            .navbar-nav .nav-icon { margin-left: .5rem; margin-right: 0; }
 
-            .sidebar .nav-item .nav-link {
-                text-align: right;
-            }
+            /* Navbar left/right link groups */
+            .ml-auto, .mx-auto { margin-left: unset !important; margin-right: auto !important; }
+            .navbar-nav.ml-auto { margin-right: auto !important; margin-left: 0 !important; }
 
-            .sidebar .nav-item .nav-link[data-toggle=collapse]::after {
-                float: left;
-                transform: rotate(180deg)
-            }
+            /* Right-side badges in menu items */
+            .nav-sidebar .badge.right { left: 2.2rem; right: auto; }
 
-            .ml-auto, .mx-auto {
-                margin-left: unset!important;
-                margin-right: auto!important;
-            }
+            /* Dropdown menus */
+            .navbar .dropdown-menu { right: auto; left: 0; }
+
+            /* Sidebar logo row follows the right-hand sidebar */
+            .brand-link { flex-direction: row; text-align: right; }
+
+            /* Color-picker widget flips to the left edge */
+            .colors { right: unset; left: -60px; }
+            .colors.open { right: unset; left: 0; }
         </style>
     @endif
     </head>
@@ -115,7 +182,6 @@
         </ul>
     </div>
 
-    {{-- {{ App::getLocal() }} --}}
     @include('admin.sidebar')
 
     <script src="{{ asset('back/plugins/jquery/jquery.min.js') }}"></script>
@@ -162,6 +228,19 @@
     <script>
         let userId = '{{ Auth::id() }}'
     </script>
+    <script>
+    document.getElementById('settingsDropdown').addEventListener('click', function(e) {
+        e.preventDefault();
+        var menu = document.getElementById('settingsMenu');
+        if (menu.style.display === 'none' || menu.style.display === '') {
+            menu.style.display = 'block';
+        } else {
+            menu.style.display = 'none';
+        }
+    });
+</script>
 </body>
 
 </html>
+
+

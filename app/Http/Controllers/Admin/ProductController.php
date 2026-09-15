@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Image;
+use App\Models\Pharmacy;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -16,7 +17,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::latest('id')->paginate(10);
+        $products = Product::with('pharmacies')->withCount('pharmacies')->latest('id')->paginate(10);
 
         return view('admin.products.index', compact('products'));
     }
@@ -29,7 +30,7 @@ class ProductController extends Controller
         $categories = Category::select('id', 'name')->get();
         $product = new Product();
 
-        return view('admin.products.create', compact('categories', 'product'));
+        return view('admin.products.create', compact('categories', 'product') + $this->branches($product));
     }
 
     /**
@@ -41,12 +42,16 @@ class ProductController extends Controller
             'name_en' => 'required',
             'name_ar' => 'required',
             'image' => 'required',
-            'gallery' => 'required',
+            'gallery' => 'nullable',
             'price' => 'required',
             'description_en' => 'required',
             'description_ar' => 'required',
             'quantity' => 'required',
             'category_id' => 'required',
+            'pharmacies' => 'array',
+            'pharmacies.*' => 'integer',
+            'quantities' => 'array',
+            'quantities.*' => 'nullable|integer|min:0|max:1000000',
         ]);
 
         // $data = $request->except('_token', 'image', 'gallery');
@@ -61,16 +66,33 @@ class ProductController extends Controller
             'ar' => $request->description_ar,
         ];
 
+        $dosage = [
+            'en' => $request->dosage_en,
+            'ar' => $request->dosage_ar,
+        ];
+
         $product = Product::create([
             // 'name' => $request->name,
             // 'description' => $request->description,
             'name'=> json_encode($name,JSON_UNESCAPED_UNICODE),
             'description'=> json_encode($desc,JSON_UNESCAPED_UNICODE),
+            'recommended_dosage' => json_encode($dosage, JSON_UNESCAPED_UNICODE),
 
             'price' => $request->price,
+            'show_price' => $request->boolean('show_price'),
             'quantity' => $request->quantity,
+            'stock_display' => $request->stock_display ?? 'quantity',
             'category_id' => $request->category_id,
+            'active_ingredient' => $request->active_ingredient,
+            'manufacturer' => $request->manufacturer,
+            'dosage_form' => $request->dosage_form,
+            'requires_prescription' => $request->boolean('requires_prescription'),
+            'barcode' => $request->barcode,
+            'expiry_date' => $request->expiry_date,
         ]);
+
+        // Which branches stock it, and how many units each holds
+        $product->syncBranchStock($request->input('quantities', []), $request->input('pharmacies', []));
 
         // Add image to relation
         $img_name = rand().time().$request->file('image')->getClientOriginalName();
@@ -79,19 +101,34 @@ class ProductController extends Controller
             'path' => $img_name,
         ]);
 
-        foreach($request->gallery as $img) {
-            $img_name = rand().time().$img->getClientOriginalName();
-            $img->move(public_path('images'), $img_name);
-            $product->image()->create([
-                'path' => $img_name,
-                'type' => 'gallery'
-            ]);
+        if($request->has('gallery')) {
+            foreach($request->gallery as $img) {
+                $img_name = rand().time().$img->getClientOriginalName();
+                $img->move(public_path('images'), $img_name);
+                $product->image()->create([
+                    'path' => $img_name,
+                    'type' => 'gallery'
+                ]);
+            }
         }
 
         return redirect()
         ->route('admin.products.index')
         ->with('msg', 'Product added successfully')
         ->with('type', 'success');
+    }
+
+    /**
+     * Branches and this medicine's current quantity at each, for the form.
+     */
+    protected function branches(Product $product): array
+    {
+        return [
+            'pharmacies' => Pharmacy::orderByDesc('is_active')->orderBy('id')->get(),
+            'held' => $product->exists
+                ? $product->pharmacies()->pluck('quantity', 'pharmacies.id')
+                : collect(),
+        ];
     }
 
     /**
@@ -108,7 +145,8 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Category::select('id', 'name')->get();
-        return view('admin.products.edit', compact('product', 'categories'));
+
+        return view('admin.products.edit', compact('product', 'categories') + $this->branches($product));
     }
 
     /**
@@ -118,22 +156,52 @@ class ProductController extends Controller
     {
         // dd($request->all());
         $request->validate([
-            'name' => 'required',
+            'name_en' => 'required',
+            'name_ar' => 'required',
             'price' => 'required',
-            'description' => 'required',
+            'description_en' => 'required',
+            'description_ar' => 'required',
             'quantity' => 'required',
             'category_id' => 'required',
+            'pharmacies' => 'array',
+            'pharmacies.*' => 'integer',
+            'quantities' => 'array',
+            'quantities.*' => 'nullable|integer|min:0|max:1000000',
         ]);
 
-        // $data = $request->except('_token', 'image', 'gallery');
+        $name = [
+            'en' => $request->name_en,
+            'ar' => $request->name_ar,
+        ];
+
+        $desc = [
+            'en' => $request->description_en,
+            'ar' => $request->description_ar,
+        ];
+
+        $dosage = [
+            'en' => $request->dosage_en,
+            'ar' => $request->dosage_ar,
+        ];
 
         $product->update([
-            'name' => $request->name,
-            'description' => $request->description,
+            'name' => json_encode($name, JSON_UNESCAPED_UNICODE),
+            'description' => json_encode($desc, JSON_UNESCAPED_UNICODE),
+            'recommended_dosage' => json_encode($dosage, JSON_UNESCAPED_UNICODE),
             'price' => $request->price,
+            'show_price' => $request->boolean('show_price'),
             'quantity' => $request->quantity,
+            'stock_display' => $request->stock_display ?? 'quantity',
             'category_id' => $request->category_id,
+            'active_ingredient' => $request->active_ingredient,
+            'manufacturer' => $request->manufacturer,
+            'dosage_form' => $request->dosage_form,
+            'requires_prescription' => $request->boolean('requires_prescription'),
+            'barcode' => $request->barcode,
+            'expiry_date' => $request->expiry_date,
         ]);
+
+        $product->syncBranchStock($request->input('quantities', []), $request->input('pharmacies', []));
 
         // Add image to relation
         if($request->hasFile('image')) {

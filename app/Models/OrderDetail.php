@@ -22,4 +22,18 @@ class OrderDetail extends Model
     function order() {
         return $this->belongsTo(Order::class)->withDefault();
     }
+
+    /**
+     * Medicine name for the current locale, taken from the snapshot saved with
+     * the order so it survives a rename or a deleted medicine.
+     */
+    function getTransProductNameAttribute() {
+        $name = json_decode($this->product_name, true);
+
+        if (is_array($name)) {
+            return $name[app()->getLocale()] ?? reset($name);
+        }
+
+        return $this->product_name ?: $this->product->trans_name;
+    }
 }

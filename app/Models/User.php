@@ -22,7 +22,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'type'
+        'type',
+        'role_id',
     ];
 
     /**
@@ -50,6 +51,50 @@ class User extends Authenticatable
 
     function role(){
         return $this->belongsTo(Role::class)->withDefault();
+    }
+
+    /** Resolved permission codes; not an attribute, so it is never persisted. */
+    protected $cached_permissions = null;
+
+    /** The site owner, who always holds every permission. */
+    function isSuperAdmin(): bool {
+        return $this->role_id && $this->role->slug === Role::SUPER_ADMIN;
+    }
+
+    /** Anyone with a role belongs to the staff and may open the dashboard. */
+    function isStaff(): bool {
+        return (bool) $this->role_id;
+    }
+
+    /**
+     * Whether this user may do something, e.g. can('products.create').
+     * The owner is never limited; everyone else is limited to the permissions
+     * ticked on their role.
+     */
+    function hasPermission(string $code): bool {
+        if (! $this->role_id) {
+            return false;
+        }
+
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        return $this->permissionCodes()->contains($code);
+    }
+
+    /**
+     * Codes granted by this user's role, looked up once per request rather
+     * than on every permission check.
+     */
+    function permissionCodes() {
+        if ($this->cached_permissions === null) {
+            $this->cached_permissions = $this->role_id
+                ? $this->role->permissions()->pluck('code')
+                : collect();
+        }
+
+        return $this->cached_permissions;
     }
     function image(){
         return $this->morphOne(Image::class,'imageable');

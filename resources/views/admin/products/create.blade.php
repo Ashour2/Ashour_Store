@@ -21,6 +21,8 @@
     <button class="btn btn-success"><i class="fas fa-save"></i> Add</button>
 </form>
 
+@include('admin.products._add-pharmacy-modal')
+
 @endsection
 
 @section('title', 'Dashboard')

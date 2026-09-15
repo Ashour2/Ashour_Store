@@ -15,6 +15,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Roles and permissions first: dashboard access depends on them, and
+        // the seeder adopts any pre-existing admin as the site owner.
+        $this->call([
+            RolesPermissionsSeeder::class,
+            SettingsSeeder::class,
+        ]);
+
         // User::factory(10)->create();
 
         User::factory()->create([
