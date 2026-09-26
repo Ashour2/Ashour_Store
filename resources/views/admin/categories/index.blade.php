@@ -27,8 +27,8 @@
             <img width="100" src="{{ $category->img_path }}" alt="">
         </td>
         <td class="text-center">
-            @if ($category->icon_class)
-                <i class="{{ $category->icon_class }} fa-lg text-primary" title="{{ $category->icon_class }}"></i>
+            @if ($category->line_icon || $category->icon_class)
+                <span class="text-primary" title="{{ $category->icon_code }}"><x-category-icon :category="$category" size="small" /></span>
             @else
                 <span class="text-muted">—</span>
             @endif

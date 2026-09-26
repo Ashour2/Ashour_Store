@@ -22,7 +22,7 @@
 <div class="mb-3">
     <label>{{ __('admin.icon_code') }}</label>
     <input type="text" name="icon_code" class="form-control @error('icon_code') is-invalid @enderror"
-           placeholder="fa-solid fa-pills" value="{{ old('icon_code', $category->icon_code) }}" dir="ltr" />
+           placeholder="line:stomach" value="{{ old('icon_code', $category->icon_code) }}" dir="ltr" />
     <small class="form-text text-muted">{{ __('admin.icon_code_hint') }}</small>
     @error('icon_code')
         <small class="invalid-feedback d-block">{{ $message }}</small>

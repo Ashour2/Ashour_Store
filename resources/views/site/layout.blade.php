@@ -94,7 +94,9 @@
             color: var(--ph-ink); transition: .2s;
         }
         .cat-pill:hover { border-color: var(--ph-primary); color: var(--ph-primary-dark); transform: translateY(-3px); box-shadow: 0 8px 18px rgba(15,118,110,.12); }
-        .cat-icon { color: var(--ph-primary); font-size: 1.75rem; line-height: 1; }
+        .cat-icon { color: var(--ph-primary); font-size: 1.75rem; line-height: 1; height: 34px; display: flex; align-items: center; }
+        .category-line-icon { width: 34px; height: 34px; display: block; }
+        .category-line-icon-sm { width: 24px; height: 24px; vertical-align: middle; }
         .cat-name { font-weight: 700; font-size: .9rem; }
         .cat-pill .badge { font-size: .7rem; }
         .rx-badge { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; font-size: .72rem; }

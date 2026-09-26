@@ -34,6 +34,14 @@ class Category extends Model
         return '';
     }
 
+    /** The fixed line-icon key used by the catalogue cards. */
+    function getLineIconAttribute(): string
+    {
+        $code = trim((string) $this->icon_code);
+
+        return preg_match('/^line:([a-z-]+)$/', $code, $matches) ? $matches[1] : '';
+    }
+
     /** Suggest a suitable Font Awesome icon from the Arabic or English category name. */
     function suggestedIconClass(): string
     {
