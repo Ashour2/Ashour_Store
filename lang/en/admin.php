@@ -4,7 +4,7 @@ return [
     'categories' => 'Categories',
     'all_categories' => 'All Categories',
     "icon_code" => "Icon Code",
-    "icon_code_hint" => "Optional. Example: fa-solid fa-pills. Leave it blank to use an automatic icon.",
+    "icon_code_hint" => "Optional. For line icons use, for example: line:stomach or line:capsule. Leave it empty to show no icon.",
 
     'products' => 'Products',
     'all_products' => 'All Products',

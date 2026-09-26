@@ -4,7 +4,7 @@ return [
     'categories' => 'الاقسام',
     'all_categories' => 'جميع الاقسام',
     "icon_code" => "كود الأيقونة",
-    "icon_code_hint" => "اختياري. مثال: fa-solid fa-pills. إذا تُرك فارغًا سيختار الموقع أيقونة تلقائية.",
+    "icon_code_hint" => "اختياري. للأيقونات الخطّية استخدم مثلًا: line:stomach أو line:capsule. اتركه فارغًا لعرض التصنيف بلا أيقونة.",
 
     'products' => 'المنتجات',
     'all_products' => 'جميع المنتجات',
