@@ -42,7 +42,7 @@ class Category extends Model
             ['terms' => ['pain', 'fever', 'مسكن', 'حرارة'], 'icon' => 'fa-solid fa-temperature-half'],
             ['terms' => ['antibiotic', 'مضاد حيو'], 'icon' => 'fa-solid fa-capsules'],
             ['terms' => ['vitamin', 'supplement', 'فيتامين', 'مكمل'], 'icon' => 'fa-solid fa-tablets'],
-            ['terms' => ['digestive', 'stomach', 'هضم', 'المعدة', 'الجهاز الهضمي'], 'icon' => 'fa-solid fa-stomach'],
+            ['terms' => ['digestive', 'stomach', 'هضم', 'المعدة', 'الجهاز الهضمي'], 'icon' => 'fa-solid fa-bowl-food'],
             ['terms' => ['cold', 'cough', 'برد', 'سعال'], 'icon' => 'fa-solid fa-head-side-cough'],
             ['terms' => ['skin', 'بشرة', 'جلد'], 'icon' => 'fa-solid fa-pump-soap'],
             ['terms' => ['heart', 'blood pressure', 'قلب', 'ضغط'], 'icon' => 'fa-solid fa-heart-pulse'],
