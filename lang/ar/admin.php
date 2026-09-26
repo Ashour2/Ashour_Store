@@ -3,6 +3,8 @@ return [
     'dash' => 'الرئيسية',
     'categories' => 'الاقسام',
     'all_categories' => 'جميع الاقسام',
+    "icon_code" => "كود الأيقونة",
+    "icon_code_hint" => "اختياري. مثال: fa-solid fa-pills. إذا تُرك فارغًا سيختار الموقع أيقونة تلقائية.",
 
     'products' => 'المنتجات',
     'all_products' => 'جميع المنتجات',

@@ -3,6 +3,8 @@ return [
     'dash' => 'Dashboard',
     'categories' => 'Categories',
     'all_categories' => 'All Categories',
+    "icon_code" => "Icon Code",
+    "icon_code_hint" => "Optional. Example: fa-solid fa-pills. Leave it blank to use an automatic icon.",
 
     'products' => 'Products',
     'all_products' => 'All Products',
