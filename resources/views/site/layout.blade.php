@@ -84,12 +84,19 @@
         }
         .med-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(15,118,110,.12); }
         .med-card img { height: 170px; object-fit: cover; width: 100%; background: var(--ph-soft); }
-        .cat-pill {
-            display: inline-flex; align-items: center; gap: .4rem;
-            background: #fff; border: 1px solid #e2e8f0; border-radius: 999px;
-            padding: .5rem 1rem; color: var(--ph-ink); transition: .2s;
+        .category-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: .85rem;
         }
-        .cat-pill:hover { border-color: var(--ph-primary); color: var(--ph-primary-dark); }
+        .cat-pill {
+            display: flex; min-height: 126px; padding: 1rem .75rem; align-items: center;
+            justify-content: center; flex-direction: column; gap: .45rem; text-align: center;
+            background: #fff; border: 1px solid #e2e8f0; border-radius: 1rem;
+            color: var(--ph-ink); transition: .2s;
+        }
+        .cat-pill:hover { border-color: var(--ph-primary); color: var(--ph-primary-dark); transform: translateY(-3px); box-shadow: 0 8px 18px rgba(15,118,110,.12); }
+        .cat-icon { color: var(--ph-primary); font-size: 1.75rem; line-height: 1; }
+        .cat-name { font-weight: 700; font-size: .9rem; }
+        .cat-pill .badge { font-size: .7rem; }
         .rx-badge { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; font-size: .72rem; }
         .wa-float {
             position: fixed; bottom: 22px; {{ $rtl ? 'left' : 'right' }}: 22px; z-index: 999;

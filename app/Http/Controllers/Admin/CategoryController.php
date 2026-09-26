@@ -35,7 +35,8 @@ class CategoryController extends Controller
         $request->validate([
             'name_en' => 'required',
             'name_ar' => 'required',
-            'image' => 'required'
+            'image' => 'required',
+            'icon_code' => 'nullable|string|max:100',
         ]);
 
         $data = $request->except('_token', 'image');
@@ -56,6 +57,7 @@ class CategoryController extends Controller
             // 'description' => $request->description
             'name' => json_encode($name, JSON_UNESCAPED_UNICODE),
             'description' => json_encode($desc, JSON_UNESCAPED_UNICODE),
+            'icon_code' => $request->icon_code,
         ]);
 
         // Add image to relation
@@ -96,7 +98,8 @@ class CategoryController extends Controller
     {
         $request->validate([
             'name_en' => 'required',
-            'name_ar' => 'required'
+            'name_ar' => 'required',
+            'icon_code' => 'nullable|string|max:100',
         ]);
 
         $desc = [
@@ -110,7 +113,8 @@ class CategoryController extends Controller
 
         $category->update([
             'name' => json_encode($name, JSON_UNESCAPED_UNICODE),
-            'description' => json_encode($desc, JSON_UNESCAPED_UNICODE)
+            'description' => json_encode($desc, JSON_UNESCAPED_UNICODE),
+            'icon_code' => $request->icon_code,
         ]);
 
         // Add image to relation

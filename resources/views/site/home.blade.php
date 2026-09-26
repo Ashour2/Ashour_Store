@@ -31,11 +31,11 @@
 @if ($categories->count())
 <section class="container py-5">
     <h4 class="fw-bold mb-4">{{ __('site.categories') }}</h4>
-    <div class="d-flex flex-wrap gap-2">
+    <div class="category-grid">
         @foreach ($categories as $category)
             <a href="{{ route('medicines.index', ['category' => $category->id]) }}" class="cat-pill">
-                <i class="fas fa-capsules text-ph"></i>
-                {{ $category->trans_name }}
+                <span class="cat-icon"><i class="{{ $category->icon_class }}"></i></span>
+                <span class="cat-name">{{ $category->trans_name }}</span>
                 <span class="badge bg-light text-muted">{{ $category->products_count }}</span>
             </a>
         @endforeach

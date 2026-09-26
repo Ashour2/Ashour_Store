@@ -15,6 +15,7 @@
     <tr class="bg-dark text-white">
         <th>#</th>
         <th>Image</th>
+        <th>{{ __('admin.icon_code') }}</th>
         <th>Name</th>
         <th>Products Count</th>
         <th>Actions</th>
@@ -25,6 +26,7 @@
         <td>
             <img width="100" src="{{ $category->img_path }}" alt="">
         </td>
+        <td class="text-center"><i class="{{ $category->icon_class }} fa-lg text-primary" title="{{ $category->icon_class }}"></i></td>
         <td>{{ $category->trans_name }}</td>
         {{-- <td>{{ $category->name }}</td> --}}
         {{-- <td>{{json_decode($category->name,true)[app()->getLocale()] ?? ""}}</td> --}}
@@ -40,7 +42,7 @@
     </tr>
     @empty
     <tr>
-        <td colspan="5" class="text-center">No Data Found</td>
+        <td colspan="6" class="text-center">No Data Found</td>
     </tr>
     @endforelse
 
