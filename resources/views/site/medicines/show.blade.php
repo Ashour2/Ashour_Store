@@ -59,14 +59,17 @@
                     @if ($medicine->active_ingredient)
                         <tr><th class="text-muted" style="width:40%">{{ __('site.active_ingredient') }}</th><td>{{ $medicine->active_ingredient }}</td></tr>
                     @endif
-                    @if ($medicine->manufacturer)
-                        <tr><th class="text-muted">{{ __('site.manufacturer') }}</th><td>{{ $medicine->manufacturer }}</td></tr>
+                    @if ($medicine->scientific_name)
+                        <tr><th class="text-muted">{{ __('site.scientific_name') }}</th><td>{{ $medicine->scientific_name }}</td></tr>
+                    @endif
+                    @if ($medicine->trade_name)
+                        <tr><th class="text-muted">{{ __('site.trade_name') }}</th><td>{{ $medicine->trade_name }}</td></tr>
                     @endif
                     @if ($medicine->dosage_form)
                         <tr><th class="text-muted">{{ __('site.dosage_form') }}</th><td>{{ $medicine->dosage_form }}</td></tr>
                     @endif
-                    @if ($medicine->trans_dosage)
-                        <tr><th class="text-muted">{{ __('site.recommended_dosage') }}</th><td>{{ $medicine->trans_dosage }}</td></tr>
+                    @if ($medicine->trans_contraindications_warnings)
+                        <tr><th class="text-muted">{{ __('site.contraindications_warnings') }}</th><td>{{ $medicine->trans_contraindications_warnings }}</td></tr>
                     @endif
                     @if ($medicine->expiry_date)
                         <tr><th class="text-muted">{{ __('site.expiry_date') }}</th><td>{{ $medicine->expiry_date->format('Y-m-d') }}</td></tr>

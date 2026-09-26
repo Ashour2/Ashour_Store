@@ -28,17 +28,17 @@ class Product extends Model
         return (int) $this->quantity > 0;
     }
 
-    // Bilingual recommended dosage (stored as JSON like name/description)
-    function getTransDosageAttribute() {
-        return json_decode($this->recommended_dosage, true)[app()->getLocale()] ?? '';
+    // Bilingual contraindications and warnings (stored as JSON like name/description).
+    function getTransContraindicationsWarningsAttribute() {
+        return json_decode($this->contraindications_warnings ?: '{}', true)[app()->getLocale()] ?? '';
     }
 
-    function getDosageEnAttribute() {
-        return json_decode($this->recommended_dosage, true)['en'] ?? '';
+    function getContraindicationsWarningsEnAttribute() {
+        return json_decode($this->contraindications_warnings ?: '{}', true)['en'] ?? '';
     }
 
-    function getDosageArAttribute() {
-        return json_decode($this->recommended_dosage, true)['ar'] ?? '';
+    function getContraindicationsWarningsArAttribute() {
+        return json_decode($this->contraindications_warnings ?: '{}', true)['ar'] ?? '';
     }
 
     /**

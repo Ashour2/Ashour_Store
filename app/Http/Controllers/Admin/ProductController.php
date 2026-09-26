@@ -48,6 +48,10 @@ class ProductController extends Controller
             'description_ar' => 'required',
             'quantity' => 'required',
             'category_id' => 'required',
+            'scientific_name' => 'nullable|string|max:255',
+            'trade_name' => 'nullable|string|max:255',
+            'contraindications_warnings_en' => 'nullable|string',
+            'contraindications_warnings_ar' => 'nullable|string',
             'pharmacies' => 'array',
             'pharmacies.*' => 'integer',
             'quantities' => 'array',
@@ -66,9 +70,9 @@ class ProductController extends Controller
             'ar' => $request->description_ar,
         ];
 
-        $dosage = [
-            'en' => $request->dosage_en,
-            'ar' => $request->dosage_ar,
+        $warnings = [
+            'en' => $request->contraindications_warnings_en,
+            'ar' => $request->contraindications_warnings_ar,
         ];
 
         $product = Product::create([
@@ -76,7 +80,9 @@ class ProductController extends Controller
             // 'description' => $request->description,
             'name'=> json_encode($name,JSON_UNESCAPED_UNICODE),
             'description'=> json_encode($desc,JSON_UNESCAPED_UNICODE),
-            'recommended_dosage' => json_encode($dosage, JSON_UNESCAPED_UNICODE),
+            'scientific_name' => $request->scientific_name,
+            'trade_name' => $request->trade_name,
+            'contraindications_warnings' => json_encode($warnings, JSON_UNESCAPED_UNICODE),
 
             'price' => $request->price,
             'show_price' => $request->boolean('show_price'),
@@ -84,7 +90,6 @@ class ProductController extends Controller
             'stock_display' => $request->stock_display ?? 'quantity',
             'category_id' => $request->category_id,
             'active_ingredient' => $request->active_ingredient,
-            'manufacturer' => $request->manufacturer,
             'dosage_form' => $request->dosage_form,
             'requires_prescription' => $request->boolean('requires_prescription'),
             'barcode' => $request->barcode,
@@ -163,6 +168,10 @@ class ProductController extends Controller
             'description_ar' => 'required',
             'quantity' => 'required',
             'category_id' => 'required',
+            'scientific_name' => 'nullable|string|max:255',
+            'trade_name' => 'nullable|string|max:255',
+            'contraindications_warnings_en' => 'nullable|string',
+            'contraindications_warnings_ar' => 'nullable|string',
             'pharmacies' => 'array',
             'pharmacies.*' => 'integer',
             'quantities' => 'array',
@@ -179,22 +188,23 @@ class ProductController extends Controller
             'ar' => $request->description_ar,
         ];
 
-        $dosage = [
-            'en' => $request->dosage_en,
-            'ar' => $request->dosage_ar,
+        $warnings = [
+            'en' => $request->contraindications_warnings_en,
+            'ar' => $request->contraindications_warnings_ar,
         ];
 
         $product->update([
             'name' => json_encode($name, JSON_UNESCAPED_UNICODE),
             'description' => json_encode($desc, JSON_UNESCAPED_UNICODE),
-            'recommended_dosage' => json_encode($dosage, JSON_UNESCAPED_UNICODE),
+            'scientific_name' => $request->scientific_name,
+            'trade_name' => $request->trade_name,
+            'contraindications_warnings' => json_encode($warnings, JSON_UNESCAPED_UNICODE),
             'price' => $request->price,
             'show_price' => $request->boolean('show_price'),
             'quantity' => $request->quantity,
             'stock_display' => $request->stock_display ?? 'quantity',
             'category_id' => $request->category_id,
             'active_ingredient' => $request->active_ingredient,
-            'manufacturer' => $request->manufacturer,
             'dosage_form' => $request->dosage_form,
             'requires_prescription' => $request->boolean('requires_prescription'),
             'barcode' => $request->barcode,

@@ -34,6 +34,8 @@ class MedicineController extends Controller
                 $query->where(function ($sub) use ($q) {
                     $sub->where('name', 'like', "%{$q}%")
                         ->orWhere('active_ingredient', 'like', "%{$q}%")
+                        ->orWhere('scientific_name', 'like', "%{$q}%")
+                        ->orWhere('trade_name', 'like', "%{$q}%")
                         ->orWhere('description', 'like', "%{$q}%");
                 });
             })

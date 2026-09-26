@@ -205,8 +205,14 @@
     </div>
     <div class="col-md-4">
         <div class="mb-3">
-            <label>{{ __('admin.manufacturer') }}</label>
-            <input type="text" name="manufacturer" class="form-control" value="{{ old('manufacturer', $product->manufacturer) }}" />
+            <label>{{ __('admin.scientific_name') }}</label>
+            <input type="text" name="scientific_name" class="form-control" value="{{ old('scientific_name', $product->scientific_name) }}" />
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="mb-3">
+            <label>{{ __('admin.trade_name') }}</label>
+            <input type="text" name="trade_name" class="form-control" value="{{ old('trade_name', $product->trade_name) }}" />
         </div>
     </div>
     <div class="col-md-4">
@@ -218,14 +224,14 @@
 
     <div class="col-md-6">
         <div class="mb-3">
-            <label>{{ __('admin.recommended_dosage') }} (EN)</label>
-            <textarea name="dosage_en" class="form-control" rows="2">{{ old('dosage_en', $product->dosage_en) }}</textarea>
+            <label>{{ __('admin.contraindications_warnings') }} (EN)</label>
+            <textarea name="contraindications_warnings_en" class="form-control" rows="3">{{ old('contraindications_warnings_en', $product->contraindications_warnings_en) }}</textarea>
         </div>
     </div>
     <div class="col-md-6">
         <div class="mb-3">
-            <label>{{ __('admin.recommended_dosage') }} (AR)</label>
-            <textarea name="dosage_ar" class="form-control" rows="2">{{ old('dosage_ar', $product->dosage_ar) }}</textarea>
+            <label>{{ __('admin.contraindications_warnings') }} (AR)</label>
+            <textarea name="contraindications_warnings_ar" class="form-control" rows="3">{{ old('contraindications_warnings_ar', $product->contraindications_warnings_ar) }}</textarea>
         </div>
     </div>
 
