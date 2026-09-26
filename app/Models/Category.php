@@ -17,10 +17,7 @@ class Category extends Model
         return $this->hasMany(Product::class);
     }
 
-    /**
-     * Uses the saved Font Awesome code when supplied. Existing categories get
-     * an appropriate icon automatically from their Arabic or English name.
-     */
+    /** Returns the saved Font Awesome code, or no icon for a new blank category. */
     function getIconClassAttribute(): string
     {
         $customIcon = trim((string) $this->icon_code);
@@ -34,6 +31,12 @@ class Category extends Model
             }
         }
 
+        return '';
+    }
+
+    /** Suggest a suitable Font Awesome icon from the Arabic or English category name. */
+    function suggestedIconClass(): string
+    {
         $name = mb_strtolower($this->name_en . ' ' . $this->name_ar);
         $icons = [
             ['terms' => ['pain', 'fever', 'مسكن', 'حرارة'], 'icon' => 'fa-solid fa-temperature-half'],

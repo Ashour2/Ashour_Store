@@ -34,7 +34,9 @@
     <div class="category-grid">
         @foreach ($categories as $category)
             <a href="{{ route('medicines.index', ['category' => $category->id]) }}" class="cat-pill">
-                <span class="cat-icon"><i class="{{ $category->icon_class }}"></i></span>
+                @if ($category->icon_class)
+                    <span class="cat-icon"><i class="{{ $category->icon_class }}"></i></span>
+                @endif
                 <span class="cat-name">{{ $category->trans_name }}</span>
                 <span class="badge bg-light text-muted">{{ $category->products_count }}</span>
             </a>
