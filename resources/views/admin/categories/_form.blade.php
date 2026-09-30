@@ -29,21 +29,6 @@
     @enderror
 </div>
 
-<div class="mb-3">
-    <label>Image</label>
-    <input type="file" onchange="showImg(event)" name="image" class="form-control @error('image') is-invalid @enderror" />
-    @error('image')
-        <small class="invalid-feedback">{{ $message }}</small>
-    @enderror
-    @php
-        $url = '';
-        if ($category->image){
-            $url = $category->img_path;
-        }
-    @endphp
-    <img width="80" id="preview" src="{{ $url }}" alt="">
-</div>
-
 <div class="row">
     <div class="col-md-6">
         <div class="mb-3">

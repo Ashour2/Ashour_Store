@@ -35,13 +35,9 @@ class CategoryController extends Controller
         $request->validate([
             'name_en' => 'required',
             'name_ar' => 'required',
-            'image' => 'required',
             'icon_code' => 'nullable|string|max:100',
         ]);
 
-        $data = $request->except('_token', 'image');
-
-        // dd($request->all());
         $name = [
             'en' => $request->name_en,
             'ar' => $request->name_ar,
@@ -58,14 +54,6 @@ class CategoryController extends Controller
             'name' => json_encode($name, JSON_UNESCAPED_UNICODE),
             'description' => json_encode($desc, JSON_UNESCAPED_UNICODE),
             'icon_code' => $request->icon_code,
-        ]);
-
-        // Add image to relation
-        $img_name = rand() . time() . $request->file('image')->getClientOriginalName();
-        $request->file('image')->move(public_path('images'), $img_name);
-
-        $category->image()->create([
-            'path' => $img_name
         ]);
 
         return redirect()
@@ -116,16 +104,6 @@ class CategoryController extends Controller
             'description' => json_encode($desc, JSON_UNESCAPED_UNICODE),
             'icon_code' => $request->icon_code,
         ]);
-
-        // Add image to relation
-        if ($request->hasFile('image')) {
-    $img_name = rand().time().$request->file('image')->getClientOriginalName();
-    $request->file('image')->move(public_path('images'), $img_name);
-
-    $category->image()->update([
-        'path' => $img_name
-    ]);
-}
 
         return redirect()
             ->route('admin.categories.index')

@@ -14,7 +14,6 @@
 <table class="table table-bordered table-hover" >
     <tr class="bg-dark text-white">
         <th>#</th>
-        <th>Image</th>
         <th>{{ __('admin.icon_code') }}</th>
         <th>Name</th>
         <th>Products Count</th>
@@ -23,9 +22,6 @@
     @forelse ($categories as $category)
     <tr>
         <td>{{ $loop->iteration }}</td>
-        <td>
-            <img width="100" src="{{ $category->img_path }}" alt="">
-        </td>
         <td class="text-center">
             @if ($category->line_icon || $category->icon_class)
                 <span class="text-primary" title="{{ $category->icon_code }}"><x-category-icon :category="$category" size="small" /></span>
@@ -47,8 +43,8 @@
         </td>
     </tr>
     @empty
-    <tr>
-        <td colspan="6" class="text-center">No Data Found</td>
+        <tr>
+        <td colspan="5" class="text-center">No Data Found</td>
     </tr>
     @endforelse
 
