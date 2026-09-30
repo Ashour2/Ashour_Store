@@ -79,13 +79,7 @@ class RolesPermissionsSeeder extends Seeder
     public const ROLE_DEFAULTS = [
         Role::PHARMACIST => [
             'dashboard.view',
-            'products.view', 'products.edit', 'products.stock',
-            'pharmacies.view',
-            'consultations.view', 'consultations.reply',
-            'orders.view', 'orders.update',
-            'customers.view',
-            'categories.view',
-            'articles.view',
+            'products.view', 'products.create', 'products.edit', 'products.delete',
         ],
     ];
 

@@ -17,7 +17,11 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with('pharmacies')->withCount('pharmacies')->latest('id')->paginate(10);
+        $products = Product::visibleTo($this->user())
+            ->with(['pharmacies', 'addedBy'])
+            ->withCount('pharmacies')
+            ->latest('id')
+            ->paginate(10);
 
         return view('admin.products.index', compact('products'));
     }
@@ -27,6 +31,7 @@ class ProductController extends Controller
      */
     public function create()
     {
+        $this->requirePharmacyForPharmacist();
         $categories = Category::select('id', 'name')->get();
         $product = new Product();
 
@@ -38,6 +43,7 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        $this->requirePharmacyForPharmacist();
         $request->validate([
             'name_en' => 'required',
             'name_ar' => 'required',
@@ -89,6 +95,7 @@ class ProductController extends Controller
             'quantity' => $request->quantity,
             'stock_display' => $request->stock_display ?? 'quantity',
             'category_id' => $request->category_id,
+            'added_by_id' => $this->user()->id,
             'active_ingredient' => $request->active_ingredient,
             'dosage_form' => $request->dosage_form,
             'requires_prescription' => $request->boolean('requires_prescription'),
@@ -97,7 +104,7 @@ class ProductController extends Controller
         ]);
 
         // Which branches stock it, and how many units each holds
-        $product->syncBranchStock($request->input('quantities', []), $request->input('pharmacies', []));
+        $this->syncProductPharmacies($product, $request);
 
         // Add image to relation
         $img_name = rand().time().$request->file('image')->getClientOriginalName();
@@ -128,8 +135,13 @@ class ProductController extends Controller
      */
     protected function branches(Product $product): array
     {
+        $user = $this->user();
+        $pharmacies = $user->isPharmacist()
+            ? Pharmacy::whereKey($user->pharmacy_id)->get()
+            : Pharmacy::orderByDesc('is_active')->orderBy('id')->get();
+
         return [
-            'pharmacies' => Pharmacy::orderByDesc('is_active')->orderBy('id')->get(),
+            'pharmacies' => $pharmacies,
             'held' => $product->exists
                 ? $product->pharmacies()->pluck('quantity', 'pharmacies.id')
                 : collect(),
@@ -149,6 +161,7 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
+        $this->ensureVisibleToUser($product);
         $categories = Category::select('id', 'name')->get();
 
         return view('admin.products.edit', compact('product', 'categories') + $this->branches($product));
@@ -159,6 +172,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
+        $this->ensureVisibleToUser($product);
         // dd($request->all());
         $request->validate([
             'name_en' => 'required',
@@ -211,7 +225,7 @@ class ProductController extends Controller
             'expiry_date' => $request->expiry_date,
         ]);
 
-        $product->syncBranchStock($request->input('quantities', []), $request->input('pharmacies', []));
+        $this->syncProductPharmacies($product, $request);
 
         // Add image to relation
         if($request->hasFile('image')) {
@@ -251,6 +265,7 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
+        $this->ensureVisibleToUser($product);
         File::delete( public_path('images/'.$product->image->path) );
         foreach($product->gallery as $img ) {
             File::delete( public_path('images/'.$img->path) );
@@ -267,8 +282,47 @@ class ProductController extends Controller
     }
 
     function delete_img($id) {
-        $img = Image::find($id);
+        $img = Image::findOrFail($id);
+        if ($img->imageable instanceof Product) {
+            $this->ensureVisibleToUser($img->imageable);
+        }
         File::delete( public_path('images/'.$img->path) );
         return Image::destroy($id);
+    }
+
+    protected function user()
+    {
+        return auth()->user();
+    }
+
+    /** A pharmacist must be assigned to a branch before working with medicines. */
+    protected function requirePharmacyForPharmacist(): void
+    {
+        abort_if($this->user()->isPharmacist() && ! $this->user()->pharmacy_id, 403,
+            __('admin.pharmacy_assignment_required'));
+    }
+
+    /** Deny direct URLs and forged requests for a medicine outside the branch. */
+    protected function ensureVisibleToUser(Product $product): void
+    {
+        $user = $this->user();
+        if ($user->isPharmacist()) {
+            $this->requirePharmacyForPharmacist();
+            abort_unless($product->pharmacies()->whereKey($user->pharmacy_id)->exists(), 403);
+        }
+    }
+
+    /** A pharmacist cannot choose or modify any branch other than their own. */
+    protected function syncProductPharmacies(Product $product, Request $request): void
+    {
+        $user = $this->user();
+        if ($user->isPharmacist()) {
+            $product->syncBranchStock([
+                $user->pharmacy_id => (int) $request->quantity,
+            ], [$user->pharmacy_id]);
+            return;
+        }
+
+        $product->syncBranchStock($request->input('quantities', []), $request->input('pharmacies', []));
     }
 }

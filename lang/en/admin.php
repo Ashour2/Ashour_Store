@@ -3,6 +3,12 @@ return [
     'dash' => 'Dashboard',
     'categories' => 'Categories',
     'all_categories' => 'All Categories',
+    "added_by" => "Added by",
+    "unknown" => "Unknown",
+    "choose_pharmacy" => "Choose a pharmacy",
+    "pharmacy_for_pharmacist_hint" => "A pharmacy is required for pharmacist accounts; their medicines are linked to it automatically.",
+    "pharmacy_assignment_required" => "A manager must assign a pharmacy to this account first.",
+    "pharmacist_pharmacy_notice" => "Medicines are automatically saved under: :pharmacy",
     "icon_code" => "Icon Code",
     "icon_code_hint" => "Optional. For line icons use, for example: line:stomach or line:capsule. Leave it empty to show no icon.",
 

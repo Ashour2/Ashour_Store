@@ -61,6 +61,9 @@
 
 <div class="bento-head text-center">
     <h2>👋 {{ __('admin.dash') }} — {{ tsetting('site_name', 'Line Pharm') }}</h2>
+    @if (auth()->user()->isPharmacist() && auth()->user()->pharmacy_id)
+        <p class="text-ph mb-1"><i class="fas fa-clinic-medical"></i> {{ auth()->user()->pharmacy->trans_name }}</p>
+    @endif
     <p class="text-muted">{{ now()->format('l, d M Y') }}</p>
 </div>
 

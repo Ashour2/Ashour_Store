@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Pharmacy;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Staff accounts: who can sign in to the dashboard and under which role.
@@ -15,7 +17,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with('role')->whereNotNull('role_id')->latest('id')->paginate(15);
+        $users = User::with(['role', 'pharmacy'])->whereNotNull('role_id')->latest('id')->paginate(15);
 
         return view('admin.users.index', compact('users'));
     }
@@ -25,6 +27,7 @@ class UserController extends Controller
         return view('admin.users.create', [
             'user'  => new User(),
             'roles' => $this->assignableRoles(),
+            'pharmacies' => Pharmacy::orderBy('id')->get(),
         ]);
     }
 
@@ -35,7 +38,10 @@ class UserController extends Controller
             'email'    => 'required|email|max:150|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'role_id'  => ['required', Rule::in($this->assignableRoles()->pluck('id'))],
+            'pharmacy_id' => 'nullable|exists:pharmacies,id',
         ]);
+
+        $data = $this->pharmacyForRole($data);
 
         User::create($data + ['type' => 'employee']);
 
@@ -52,6 +58,7 @@ class UserController extends Controller
         return view('admin.users.edit', [
             'user'  => $user,
             'roles' => $this->assignableRoles(),
+            'pharmacies' => Pharmacy::orderBy('id')->get(),
         ]);
     }
 
@@ -64,7 +71,10 @@ class UserController extends Controller
             'email'    => ['required', 'email', 'max:150', Rule::unique('users', 'email')->ignore($user->id)],
             'password' => 'nullable|string|min:8|confirmed',
             'role_id'  => ['required', Rule::in($this->assignableRoles()->pluck('id'))],
+            'pharmacy_id' => 'nullable|exists:pharmacies,id',
         ]);
+
+        $data = $this->pharmacyForRole($data);
 
         // An empty password box means "leave the current one alone"
         if (blank($data['password'])) {
@@ -111,5 +121,22 @@ class UserController extends Controller
     protected function guardOwner(User $user): void
     {
         abort_if($user->isSuperAdmin(), 403, __('admin.cannot_touch_owner'));
+    }
+
+    /** A pharmacist account always has one manager-assigned pharmacy. */
+    protected function pharmacyForRole(array $data): array
+    {
+        $isPharmacist = Role::whereKey($data['role_id'])->value('slug') === Role::PHARMACIST;
+        if ($isPharmacist && empty($data['pharmacy_id'])) {
+            throw ValidationException::withMessages([
+                'pharmacy_id' => __('admin.pharmacy_assignment_required'),
+            ]);
+        }
+
+        if (! $isPharmacist) {
+            $data['pharmacy_id'] = null;
+        }
+
+        return $data;
     }
 }

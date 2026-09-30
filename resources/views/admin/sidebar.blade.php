@@ -39,6 +39,9 @@
             <li class="nav-item">
                 <a class="nav-link" href="#" role="button">
                     <h6>مرحباً {{ Auth::user()->name }}! 👋
+                        @if (Auth::user()->isPharmacist() && Auth::user()->pharmacy_id)
+                            <small class="text-muted">— {{ Auth::user()->pharmacy->trans_name }}</small>
+                        @endif
                     </h6>
                 </a>
             </li>
@@ -151,6 +154,7 @@
                                     <p style="color: wheat">{{ __('admin.all_products') }}</p>
                                 </a>
                             </li>
+                            @can('products.create')
                             <li class="nav-item">
                                 <a href="{{ route('admin.products.create') }}" class="nav-link">
                                     <i class="fas fa-plus-circle nav-icon" style="color: white"
@@ -158,6 +162,7 @@
                                     <p style="color: wheat">{{ __('admin.add_new') }}</p>
                                 </a>
                             </li>
+                            @endcan
                         </ul>
                     </li>
                     @endcan

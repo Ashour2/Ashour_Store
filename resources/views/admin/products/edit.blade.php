@@ -13,7 +13,9 @@
     <button class="btn btn-info"><i class="fas fa-save"></i> Update</button>
 </form>
 
-@include('admin.products._add-pharmacy-modal')
+@unless (auth()->user()->isPharmacist())
+    @include('admin.products._add-pharmacy-modal')
+@endunless
 
 @endsection
 

@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Permission;
+use App\Models\Pharmacy;
+use App\Models\Product;
 use App\Models\Role;
 use App\Models\User;
 use Database\Seeders\RolesPermissionsSeeder;
@@ -25,12 +27,20 @@ class PermissionsTest extends TestCase
 
     protected function userWithRole(string $slug, string $email = null): User
     {
+        $pharmacyId = null;
+        if ($slug === Role::PHARMACIST) {
+            $pharmacyId = Pharmacy::create([
+                'name' => json_encode(['en' => 'Test Pharmacy', 'ar' => 'صيدلية اختبار'], JSON_UNESCAPED_UNICODE),
+            ])->id;
+        }
+
         return User::create([
             'name'     => ucfirst($slug),
             'email'    => $email ?: $slug . '@test.com',
             'password' => bcrypt('password'),
             'type'     => 'employee',
             'role_id'  => Role::where('slug', $slug)->value('id'),
+            'pharmacy_id' => $pharmacyId,
         ]);
     }
 
@@ -99,29 +109,41 @@ class PermissionsTest extends TestCase
         // Granted by the starter set
         $this->actingAs($pharmacist)->get(route('admin.index'))->assertOk();
         $this->actingAs($pharmacist)->get(route('admin.products.index'))->assertOk();
-        $this->actingAs($pharmacist)->get(route('admin.consultations.index'))->assertOk();
+        $this->actingAs($pharmacist)->get(route('admin.products.create'))->assertOk();
+
+        $product = Product::create([
+            'name' => json_encode(['en' => 'Test medicine', 'ar' => 'دواء تجريبي'], JSON_UNESCAPED_UNICODE),
+            'description' => json_encode(['en' => 'x', 'ar' => 'س'], JSON_UNESCAPED_UNICODE),
+            'price' => 5,
+            'quantity' => 1,
+        ]);
 
         // Not granted
         $this->actingAs($pharmacist)->get(route('admin.settings.edit'))->assertStatus(403);
+        $this->actingAs($pharmacist)->get(route('admin.consultations.index'))->assertStatus(403);
         $this->actingAs($pharmacist)->get(route('admin.users.index'))->assertStatus(403);
         $this->actingAs($pharmacist)->get(route('admin.roles.index'))->assertStatus(403);
-        $this->actingAs($pharmacist)->get(route('admin.products.create'))->assertStatus(403);
+        $this->actingAs($pharmacist)->get(route('admin.products.stock.edit', $product))->assertStatus(403);
     }
 
-    public function test_a_pharmacist_cannot_delete_what_it_may_only_view(): void
+    public function test_a_pharmacist_cannot_delete_a_medicine_from_another_pharmacy(): void
     {
         $pharmacist = $this->userWithRole(Role::PHARMACIST);
-        $product = \App\Models\Product::create([
+        $otherPharmacy = Pharmacy::create([
+            'name' => json_encode(['en' => 'Other Pharmacy', 'ar' => 'صيدلية أخرى'], JSON_UNESCAPED_UNICODE),
+        ]);
+        $product = Product::create([
             'name'        => json_encode(['en' => 'Panadol', 'ar' => 'بنادول'], JSON_UNESCAPED_UNICODE),
             'description' => json_encode(['en' => 'x', 'ar' => 'س'], JSON_UNESCAPED_UNICODE),
             'price' => 5, 'quantity' => 1,
         ]);
+        $product->pharmacies()->attach($otherPharmacy->id, ['quantity' => 1]);
 
         $this->actingAs($pharmacist)
             ->delete(route('admin.products.destroy', $product->id))
             ->assertStatus(403);
 
-        $this->assertSame(1, \App\Models\Product::count());
+        $this->assertSame(1, Product::count());
     }
 
     public function test_granting_a_permission_opens_the_page_immediately(): void
@@ -165,6 +187,9 @@ class PermissionsTest extends TestCase
 
     public function test_an_admin_can_create_a_pharmacist(): void
     {
+        $pharmacy = Pharmacy::create([
+            'name' => json_encode(['en' => 'Main Pharmacy', 'ar' => 'الصيدلية الرئيسية'], JSON_UNESCAPED_UNICODE),
+        ]);
         $this->actingAs($this->userWithRole(Role::ADMIN))
             ->post(route('admin.users.store'), [
                 'name' => 'New Pharmacist',
@@ -172,12 +197,14 @@ class PermissionsTest extends TestCase
                 'password' => 'secret123',
                 'password_confirmation' => 'secret123',
                 'role_id' => Role::where('slug', Role::PHARMACIST)->value('id'),
+                'pharmacy_id' => $pharmacy->id,
             ])
             ->assertRedirect(route('admin.users.index'));
 
         $created = User::where('email', 'new@test.com')->first();
         $this->assertNotNull($created);
         $this->assertSame(Role::PHARMACIST, $created->role->slug);
+        $this->assertSame($pharmacy->id, $created->pharmacy_id);
     }
 
     public function test_the_owner_role_cannot_be_handed_out_from_the_users_screen(): void
@@ -216,6 +243,7 @@ class PermissionsTest extends TestCase
             'name' => 'Renamed',
             'email' => $pharmacist->email,
             'role_id' => $pharmacist->role_id,
+            'pharmacy_id' => $pharmacist->pharmacy_id,
             'password' => '',
             'password_confirmation' => '',
         ])->assertRedirect(route('admin.users.index'));

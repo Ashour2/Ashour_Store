@@ -73,6 +73,14 @@
 
 </style>
 <div class="row">
+    @if (auth()->user()->isPharmacist())
+        <div class="col-12">
+            <div class="alert alert-info py-2">
+                <i class="fas fa-clinic-medical"></i>
+                {{ __('admin.pharmacist_pharmacy_notice', ['pharmacy' => auth()->user()->pharmacy->trans_name]) }}
+            </div>
+        </div>
+    @endif
     <div class="col-md-6">
         <div class="mb-3">
             <label>English Name</label>
@@ -247,6 +255,8 @@
             <input type="date" name="expiry_date" class="form-control" value="{{ old('expiry_date', optional($product->expiry_date)->format('Y-m-d')) }}" />
         </div>
     </div>
+    {{-- Only managers choose pharmacy distributions. A pharmacist is assigned automatically. --}}
+    @unless (auth()->user()->isPharmacist())
     {{-- ===== Which pharmacies stock this medicine (manager only) ===== --}}
     @php
         $selected_ids = collect(old('pharmacies', $held->keys()->all()))->map(fn ($id) => (int) $id);
@@ -351,6 +361,7 @@
             </div>
         </div>
     </div>
+    @endunless
 
     <div class="col-md-4">
         <div class="mb-3">

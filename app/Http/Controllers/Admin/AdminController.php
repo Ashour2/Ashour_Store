@@ -18,20 +18,22 @@ class AdminController extends Controller
 {
 
 public function index(){
+    $user = Auth::user();
+    $products = Product::visibleTo($user);
     $stats = [
-        'medicines'          => Product::count(),
+        'medicines'          => $products->count(),
         'categories'         => Category::count(),
         'consultations'      => Consultation::count(),
         'consultations_new'  => Consultation::where('status', 'new')->count(),
-        'prescription'       => Product::where('requires_prescription', true)->count(),
-        'out_of_stock'       => Product::where('quantity', '<=', 0)->count(),
+        'prescription'       => Product::visibleTo($user)->where('requires_prescription', true)->count(),
+        'out_of_stock'       => Product::visibleTo($user)->where('quantity', '<=', 0)->count(),
         'users'              => User::count(),
         'orders'             => Order::count(),
         'orders_new'         => Order::where('status', 'new')->count(),
     ];
 
     $latest_consultations = Consultation::with('product')->latest('id')->take(5)->get();
-    $latest_medicines = Product::latest('id')->take(5)->get();
+    $latest_medicines = Product::visibleTo($user)->latest('id')->take(5)->get();
     $latest_orders = Order::withCount('order_details')->latest('id')->take(5)->get();
 
     return view('admin.dashboard', compact('stats', 'latest_consultations', 'latest_medicines', 'latest_orders'));

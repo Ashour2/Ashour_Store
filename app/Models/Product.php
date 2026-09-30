@@ -51,6 +51,24 @@ class Product extends Model
             ->withTimestamps();
     }
 
+    /** Staff member who first added this medicine to the catalogue. */
+    function addedBy() {
+        return $this->belongsTo(User::class, 'added_by_id')->withDefault();
+    }
+
+    /** Scope a pharmacist to medicines carried by their own pharmacy. */
+    function scopeVisibleTo($query, User $user) {
+        if (! $user->isPharmacist()) {
+            return $query;
+        }
+
+        if (! $user->pharmacy_id) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->whereHas('pharmacies', fn ($pharmacies) => $pharmacies->whereKey($user->pharmacy_id));
+    }
+
     /** Total units across every branch holding this medicine. */
     function getBranchStockAttribute() {
         return (int) $this->pharmacies->sum('pivot.quantity');

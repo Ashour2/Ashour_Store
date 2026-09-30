@@ -30,6 +30,20 @@
     @error('role_id')<small class="invalid-feedback">{{ $message }}</small>@enderror
 </div>
 
+<div class="form-group">
+    <label>{{ __('admin.pharmacy') }}</label>
+    <select name="pharmacy_id" class="form-control @error('pharmacy_id') is-invalid @enderror">
+        <option value="">— {{ __('admin.choose_pharmacy') }} —</option>
+        @foreach ($pharmacies as $pharmacy)
+            <option value="{{ $pharmacy->id }}" {{ old('pharmacy_id', $user->pharmacy_id) == $pharmacy->id ? 'selected' : '' }}>
+                {{ $pharmacy->trans_name }}
+            </option>
+        @endforeach
+    </select>
+    <small class="text-muted">{{ __('admin.pharmacy_for_pharmacist_hint') }}</small>
+    @error('pharmacy_id')<small class="invalid-feedback">{{ $message }}</small>@enderror
+</div>
+
 <div class="form-row">
     <div class="form-group col-md-6">
         <label>

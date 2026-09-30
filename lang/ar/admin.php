@@ -3,6 +3,12 @@ return [
     'dash' => 'الرئيسية',
     'categories' => 'الاقسام',
     'all_categories' => 'جميع الاقسام',
+    "added_by" => "أضافه",
+    "unknown" => "غير معروف",
+    "choose_pharmacy" => "اختر صيدلية",
+    "pharmacy_for_pharmacist_hint" => "اختيار الصيدلية إلزامي عند إنشاء حساب صيدلي، وتُربط أدويته بها تلقائياً.",
+    "pharmacy_assignment_required" => "يجب أن يعيّن المدير صيدلية لهذا الحساب أولاً.",
+    "pharmacist_pharmacy_notice" => "ستُحفظ الأدوية تلقائياً تحت صيدلية: :pharmacy",
     "icon_code" => "كود الأيقونة",
     "icon_code_hint" => "اختياري. للأيقونات الخطّية استخدم مثلًا: line:stomach أو line:capsule. اتركه فارغًا لعرض التصنيف بلا أيقونة.",
 

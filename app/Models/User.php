@@ -24,6 +24,7 @@ class User extends Authenticatable
         'password',
         'type',
         'role_id',
+        'pharmacy_id',
     ];
 
     /**
@@ -53,6 +54,10 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class)->withDefault();
     }
 
+    function pharmacy(){
+        return $this->belongsTo(Pharmacy::class)->withDefault();
+    }
+
     /** Resolved permission codes; not an attribute, so it is never persisted. */
     protected $cached_permissions = null;
 
@@ -64,6 +69,11 @@ class User extends Authenticatable
     /** Anyone with a role belongs to the staff and may open the dashboard. */
     function isStaff(): bool {
         return (bool) $this->role_id;
+    }
+
+    /** A pharmacist is limited to the medicines held at their assigned branch. */
+    function isPharmacist(): bool {
+        return $this->role_id && $this->role->slug === Role::PHARMACIST;
     }
 
     /**

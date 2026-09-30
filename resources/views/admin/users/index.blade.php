@@ -30,6 +30,7 @@
         <th>{{ __('admin.name') }}</th>
         <th>{{ __('admin.email') }}</th>
         <th>{{ __('admin.role') }}</th>
+        <th>{{ __('admin.pharmacy') }}</th>
         <th>{{ __('admin.date') }}</th>
         <th>{{ __('admin.actions') }}</th>
     </tr>
@@ -42,6 +43,7 @@
                     <span class="badge badge-info">{{ __('admin.you') }}</span>
                 @endif
             </td>
+            <td>{{ $user->pharmacy_id ? $user->pharmacy->trans_name : '—' }}</td>
             <td><span dir="ltr">{{ $user->email }}</span></td>
             <td>
                 <span class="badge badge-{{ $user->role->is_super_admin ? 'danger' : 'secondary' }}">
@@ -72,7 +74,7 @@
             </td>
         </tr>
     @empty
-        <tr><td colspan="6" class="text-center">{{ __('admin.no_data') }}</td></tr>
+        <tr><td colspan="7" class="text-center">{{ __('admin.no_data') }}</td></tr>
     @endforelse
 </table>
 {{ $users->links() }}

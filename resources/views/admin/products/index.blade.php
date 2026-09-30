@@ -3,6 +3,7 @@
 @section('content')
     <!-- Page Heading -->
     <h1 class="h3 mb-4 text-gray-800">All Products</h1>
+    @php $isPharmacist = auth()->user()->isPharmacist(); @endphp
     @if (session()->has('msg'))
         <div class="alert alert-{{ session('type') }} alert-dismissible fade show" role="alert">
             {{ session('msg') }}
@@ -19,7 +20,8 @@
             <th>Price</th>
             <th>Quantity</th>
             <th>Category</th>
-            <th>{{ __('admin.available_pharmacies') }}</th>
+            @unless ($isPharmacist)<th>{{ __('admin.available_pharmacies') }}</th>@endunless
+            @unless ($isPharmacist)<th>{{ __('admin.added_by') }}</th>@endunless
             <th>Actions</th>
         </tr>
         @forelse ($products as $product)
@@ -36,6 +38,7 @@
 
                 <td> {{ $product->category->trans_name }}</td>
 
+                @unless ($isPharmacist)
                 {{-- Branches holding this medicine; click to see names + quantities --}}
                 <td>
                     @if ($product->pharmacies->isEmpty())
@@ -51,8 +54,11 @@
                         </button>
                     @endif
                 </td>
+                <td>{{ $product->addedBy->name ?: __('admin.unknown') }}</td>
+                @endunless
 
                 <td>
+                    @unless ($isPharmacist)
                     {{-- Where this medicine is held: branch names + quantities (manager only) --}}
                     <a class="btn btn-sm btn-warning position-relative"
                        title="{{ __('admin.stock_location') }}"
@@ -62,6 +68,7 @@
                             <span class="badge badge-light">{{ $product->pharmacies_count }}</span>
                         @endif
                     </a>
+                    @endunless
                     <a class="btn btn-sm btn-primary" href="{{ route('admin.products.edit', $product->id) }}"><i
                             class="fas fa-edit"></i></a>
                     <form class="d-inline" action="{{ route('admin.products.destroy', $product->id) }}" method="POST">
@@ -74,13 +81,14 @@
             </tr>
         @empty
             <tr>
-                <td colspan="8" class="text-center">No Data Found</td>
+                <td colspan="{{ $isPharmacist ? 7 : 9 }}" class="text-center">No Data Found</td>
             </tr>
         @endforelse
 
     </table>
     {{ $products->links() }}
 
+    @unless ($isPharmacist)
     {{-- Branch breakdown for each medicine on this page --}}
     @foreach ($products as $product)
         @continue($product->pharmacies->isEmpty())
@@ -131,6 +139,7 @@
             </div>
         </div>
     @endforeach
+    @endunless
 @endsection
 
 @section('title', 'Dashboard')
