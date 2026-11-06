@@ -17,8 +17,10 @@
         <div class="bg-white border rounded-4 overflow-hidden">
             @foreach ($items as $item)
                 <div class="d-flex align-items-center gap-3 p-3 border-bottom">
-                    <img src="{{ $item->product->img_path }}" alt="{{ $item->product->trans_name }}"
-                         width="64" height="64" style="object-fit:cover;border-radius:.6rem;background:var(--ph-soft)">
+                    @if ($item->product->img_path)
+                        <img src="{{ $item->product->img_path }}" alt="{{ $item->product->trans_name }}"
+                             width="64" height="64" style="object-fit:cover;border-radius:.6rem;background:var(--ph-soft)">
+                    @endif
                     <div class="flex-grow-1 min-w-0">
                         <a href="{{ route('medicines.show', $item->product->id) }}" class="fw-semibold text-dark text-truncate d-block">
                             {{ $item->product->trans_name }}

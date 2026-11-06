@@ -47,6 +47,7 @@
 <table class="table table-bordered table-hover bg-white">
     <tr class="bg-dark text-white">
         <th>{{ __('admin.order_number') }}</th>
+        <th>الصيدلية</th>
         <th>{{ __('admin.customer') }}</th>
         <th>{{ __('admin.phone') }}</th>
         <th>{{ __('admin.items_count') }}</th>
@@ -58,6 +59,7 @@
     @forelse ($orders as $order)
     <tr>
         <td><a href="{{ route('admin.orders.show', $order->id) }}"><span dir="ltr">{{ $order->order_number }}</span></a></td>
+        <td>{{ $order->pharmacy->trans_name ?: '—' }}</td>
         <td>{{ $order->customer_name }}</td>
         <td><span dir="ltr">{{ $order->customer_phone }}</span></td>
         <td>{{ $order->order_details_count }}</td>
@@ -81,7 +83,7 @@
         </td>
     </tr>
     @empty
-    <tr><td colspan="8" class="text-center">{{ __('admin.no_data') }}</td></tr>
+    <tr><td colspan="9" class="text-center">{{ __('admin.no_data') }}</td></tr>
     @endforelse
 </table>
 {{ $orders->links() }}

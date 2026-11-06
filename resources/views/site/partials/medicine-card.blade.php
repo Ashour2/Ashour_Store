@@ -1,8 +1,10 @@
 @php $can_order = ! ($medicine->show_stock && ! $medicine->in_stock); @endphp
 <div class="med-card">
-    <a href="{{ route('medicines.show', $medicine->id) }}">
-        <img src="{{ $medicine->img_path }}" alt="{{ $medicine->trans_name }}">
-    </a>
+    @if ($medicine->img_path)
+        <a href="{{ route('medicines.show', $medicine->id) }}">
+            <img src="{{ $medicine->img_path }}" alt="{{ $medicine->trans_name }}">
+        </a>
+    @endif
     <div class="p-3">
         @if ($medicine->category_id)
             <span class="badge bg-light text-ph mb-2">{{ $medicine->category->trans_name }}</span>

@@ -9,6 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter;
 use Mcamara\LaravelLocalization\Middleware\LocaleSessionRedirect;
 use Tests\TestCase;
+use App\Models\Pharmacy;
 
 class CartTest extends TestCase
 {
@@ -30,6 +31,7 @@ class CartTest extends TestCase
             'description' => json_encode(['en' => 'Pain relief', 'ar' => 'مسكن'], JSON_UNESCAPED_UNICODE),
             'price'       => 12.50,
             'quantity'    => 25,
+            'is_active'   => true,
         ]);
     }
 
@@ -98,6 +100,8 @@ class CartTest extends TestCase
     public function test_checkout_stores_the_order_and_empties_the_cart(): void
     {
         $medicine = $this->medicine();
+        $pharmacy = Pharmacy::create(['name' => '{"en":"Branch","ar":"Branch"}', 'is_active' => true, 'subscription_status' => 'active']);
+        $pharmacy->products()->attach($medicine->id, ['quantity' => 25, 'is_allowed' => true]);
         $this->postJson(route('cart.add', $medicine->id) . '?quantity=2');
 
         $response = $this->post(route('cart.store'), [
@@ -105,6 +109,7 @@ class CartTest extends TestCase
             'customer_phone'   => '+966500000000',
             'customer_address' => 'Riyadh',
             'note'             => 'Please call before delivery',
+            'pharmacy_id'      => $pharmacy->id,
         ]);
 
         $order = Order::first();
@@ -151,10 +156,13 @@ class CartTest extends TestCase
         Setting::put('whatsapp_number', '966500000000');
 
         $medicine = $this->medicine();
+        $pharmacy = Pharmacy::create(['name' => '{"en":"Branch","ar":"Branch"}', 'is_active' => true, 'subscription_status' => 'active', 'phone' => '966500000000']);
+        $pharmacy->products()->attach($medicine->id, ['quantity' => 25, 'is_allowed' => true]);
         $this->post(route('cart.add', $medicine->id));
         $this->post(route('cart.store'), [
             'customer_name'  => 'Ahmad',
             'customer_phone' => '+966500000000',
+            'pharmacy_id' => $pharmacy->id,
         ]);
 
         $order = Order::first();
@@ -163,5 +171,25 @@ class CartTest extends TestCase
             ->assertOk()
             ->assertSee($order->order_number)
             ->assertSee('wa.me', false);
+    }
+
+    public function test_checkout_uses_each_medicines_own_pharmacy_price(): void
+    {
+        $first = $this->medicine();
+        $second = $this->medicine(['price' => 40]);
+        $pharmacy = Pharmacy::create(['name' => '{"en":"Branch","ar":"Branch"}', 'is_active' => true, 'subscription_status' => 'active']);
+        $pharmacy->products()->attach([
+            $first->id => ['quantity' => 10, 'price' => 7.5, 'is_allowed' => true],
+            $second->id => ['quantity' => 10, 'price' => 23, 'is_allowed' => true],
+        ]);
+        $this->post(route('cart.add', $first), ['quantity' => 2]);
+        $this->post(route('cart.add', $second), ['quantity' => 1]);
+        $this->post(route('cart.store'), ['customer_name' => 'Ahmad', 'customer_phone' => '123456', 'pharmacy_id' => $pharmacy->id])
+            ->assertSessionHasNoErrors()->assertRedirect();
+        $order = Order::firstOrFail();
+        $this->assertEquals(38, $order->total);
+        $this->assertDatabaseHas('order_details', ['order_id' => $order->id, 'product_id' => $first->id, 'price' => 7.5, 'total' => 15]);
+        $this->assertDatabaseHas('order_details', ['order_id' => $order->id, 'product_id' => $second->id, 'price' => 23, 'total' => 23]);
+        $this->assertDatabaseHas('pharmacy_product', ['pharmacy_id' => $pharmacy->id, 'product_id' => $first->id, 'quantity' => 8]);
     }
 }

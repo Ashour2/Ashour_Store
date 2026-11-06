@@ -113,7 +113,7 @@ class SiteLogoTest extends TestCase
             ->get(route('admin.index'))
             ->assertOk()
             ->assertSee('<link rel="icon" href="' . asset('images/' . $name) . '">', false)
-            ->assertSee('class="brand-image"', false);
+            ->assertSee('<img src="' . asset('images/' . $name) . '"', false);
     }
 
     public function test_the_site_falls_back_to_its_icon_without_a_logo(): void

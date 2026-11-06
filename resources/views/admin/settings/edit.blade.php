@@ -2,6 +2,7 @@
 
 @section('content')
 <style>
+    .sticky-save-bar { position: sticky; top: 8px; z-index: 1020; background: #fff; padding: 10px 0; border-bottom: 1px solid #e9ecef; box-shadow: 0 4px 10px rgba(15,23,42,.08); }
     /* The two slider choices read as cards; the picked one is highlighted */
     .hero-option {
         border: 2px solid #e3e6f0;
@@ -89,6 +90,9 @@
 <form action="{{ route('admin.settings.update') }}" method="POST" enctype="multipart/form-data">
     @csrf
     @method('put')
+    <div class="sticky-save-bar mb-3">
+        <button class="btn btn-primary"><i class="fas fa-save"></i> {{ __('admin.save') }}</button>
+    </div>
 
     <div class="card mb-4">
         <div class="card-header"><strong>{{ __('admin.general') }}</strong></div>

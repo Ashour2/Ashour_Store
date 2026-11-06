@@ -16,6 +16,7 @@ class RolesPermissionsSeeder extends Seeder
      * group => [code => [ar, en]]
      */
     public const PERMISSIONS = [
+        'warehouses' => ['warehouses.manage' => ['إدارة المستودعات', 'Manage warehouses']],
         'dashboard' => [
             'dashboard.view' => ['عرض لوحة التحكم', 'View dashboard'],
         ],
@@ -77,8 +78,10 @@ class RolesPermissionsSeeder extends Seeder
      * owner can widen or narrow from the roles screen.
      */
     public const ROLE_DEFAULTS = [
+        Role::WAREHOUSE => ['dashboard.view'],
         Role::PHARMACIST => [
             'dashboard.view',
+            'categories.view', 'categories.create', 'categories.edit',
             'products.view', 'products.create', 'products.edit', 'products.delete',
         ],
     ];
@@ -91,6 +94,7 @@ class RolesPermissionsSeeder extends Seeder
             Role::SUPER_ADMIN => [['المدير العام', 'Super admin'], true],
             Role::ADMIN       => [['مدير', 'Admin'], false],
             Role::PHARMACIST  => [['صيدلي', 'Pharmacist'], false],
+            Role::WAREHOUSE   => [['مستودع أدوية', 'Warehouse'], false],
         ];
 
         foreach ($roles as $slug => [$name, $locked]) {

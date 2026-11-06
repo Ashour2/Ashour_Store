@@ -32,6 +32,8 @@ class ArticleController extends Controller
             'description_en' => 'required',
             'description_ar' => 'required',
             'image' => 'required|image',
+            'font_family' => 'required|in:cairo,tajawal,serif',
+            'font_size' => 'required|in:small,medium,large,xlarge',
         ]);
 
         $article = Article::create($this->payload($request));
@@ -54,6 +56,8 @@ class ArticleController extends Controller
             'description_en' => 'required',
             'description_ar' => 'required',
             'image' => 'nullable|image',
+            'font_family' => 'required|in:cairo,tajawal,serif',
+            'font_size' => 'required|in:small,medium,large,xlarge',
         ]);
 
         $article->update($this->payload($request));
@@ -88,6 +92,8 @@ class ArticleController extends Controller
             'name' => json_encode(['en' => $request->name_en, 'ar' => $request->name_ar], JSON_UNESCAPED_UNICODE),
             'description' => json_encode(['en' => $request->description_en, 'ar' => $request->description_ar], JSON_UNESCAPED_UNICODE),
             'is_published' => $request->boolean('is_published'),
+            'font_family' => $request->input('font_family', 'cairo'),
+            'font_size' => $request->input('font_size', 'medium'),
         ];
     }
 

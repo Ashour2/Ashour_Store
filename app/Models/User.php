@@ -25,6 +25,7 @@ class User extends Authenticatable
         'type',
         'role_id',
         'pharmacy_id',
+        'warehouse_id',
     ];
 
     /**
@@ -57,6 +58,9 @@ class User extends Authenticatable
     function pharmacy(){
         return $this->belongsTo(Pharmacy::class)->withDefault();
     }
+
+    public function warehouse() { return $this->belongsTo(Warehouse::class); }
+    public function isWarehouse(): bool { return $this->role_id && $this->role->slug === Role::WAREHOUSE; }
 
     /** Resolved permission codes; not an attribute, so it is never persisted. */
     protected $cached_permissions = null;
@@ -114,6 +118,9 @@ class User extends Authenticatable
     }
     function orders(){
         return $this->hasMany(Order::class);
+    }
+    function adminNotifications(){
+        return $this->hasMany(AdminNotification::class);
     }
     function order_details(){
         return $this->hasMany(OrderDetail::class);

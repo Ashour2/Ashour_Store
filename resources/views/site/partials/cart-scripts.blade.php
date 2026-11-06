@@ -82,7 +82,7 @@
 
         el.items.innerHTML = data.items.map(item => `
             <div class="cart-line" data-id="${item.id}">
-                <img src="${item.image}" alt="">
+                ${item.image ? `<img src="${item.image}" alt="">` : ''}
                 <div class="flex-grow-1 min-w-0">
                     <a href="${item.url}" class="cart-line-title text-truncate">${escapeHtml(item.name)}</a>
                     ${item.show_price ? `<div class="small text-muted mb-1">${money(item.price)}</div>` : ''}

@@ -1,52 +1,25 @@
 <x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
-        @csrf
-
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
-        </div>
-
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
-
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
-
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
-        </div>
-    </form>
+    @if ($isPharmacist ?? false)
+        <div class="mb-5 text-center"><h1 class="text-xl font-bold text-slate-800">سجّل صيدليتك في لين فارم</h1><p class="mt-2 text-sm text-slate-500">ابدأ تجربة مجانية لمدة شهر كامل، ثم اختر الخطة المناسبة لك.</p></div>
+        <form method="POST" action="{{ route('register') }}" class="space-y-4 text-right" dir="rtl">
+            @csrf <input type="hidden" name="account_type" value="pharmacist">
+            <div class="rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-900"><b>تجربة مجانية 30 يوماً</b><br>الخطة الشهرية <b>10$</b> · الخطة السنوية <b>100$</b></div>
+            <div><x-input-label for="pharmacy_name" value="اسم الصيدلية (إجباري)" /><x-text-input id="pharmacy_name" class="block mt-1 w-full" type="text" name="pharmacy_name" :value="old('pharmacy_name')" required autofocus /><x-input-error :messages="$errors->get('pharmacy_name')" class="mt-2" /></div>
+            <div><x-input-label for="address" value="عنوان الصيدلية (إجباري)" /><x-text-input id="address" class="block mt-1 w-full" type="text" name="address" :value="old('address')" required /><x-input-error :messages="$errors->get('address')" class="mt-2" /></div>
+            <div><x-input-label for="phone" value="رقم واتساب/هاتف الصيدلية (إجباري)" /><x-text-input id="phone" class="block mt-1 w-full" type="tel" name="phone" :value="old('phone')" required /><x-input-error :messages="$errors->get('phone')" class="mt-2" /></div>
+            <div class="border-t pt-4"><p class="mb-3 text-sm font-bold text-slate-700">بيانات صاحب الحساب</p><div><x-input-label for="name" value="اسم الصيدلي (إجباري)" /><x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required /><x-input-error :messages="$errors->get('name')" class="mt-2" /></div><div class="mt-4"><x-input-label for="email" value="البريد الإلكتروني (اختياري)" /><x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" autocomplete="username" /><p class="mt-1 text-xs text-slate-400">لإرسال التنبيهات إليك لاحقاً.</p><x-input-error :messages="$errors->get('email')" class="mt-2" /></div></div>
+            <div><x-input-label value="اختر خطة الاشتراك بعد التجربة" /><div class="mt-2 grid grid-cols-2 gap-3"><label class="cursor-pointer rounded-lg border p-3 text-sm"><input type="radio" name="subscription_plan" value="monthly" {{ old('subscription_plan', 'monthly') === 'monthly' ? 'checked' : '' }}> <b>شهري</b><span class="block mt-1 text-emerald-700">10$ شهرياً</span></label><label class="cursor-pointer rounded-lg border p-3 text-sm"><input type="radio" name="subscription_plan" value="annual" {{ old('subscription_plan') === 'annual' ? 'checked' : '' }}> <b>سنوي</b><span class="block mt-1 text-emerald-700">100$ سنوياً</span></label></div><x-input-error :messages="$errors->get('subscription_plan')" class="mt-2" /></div>
+            <div><x-input-label for="password" value="كلمة المرور (إجباري)" /><x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" /><x-input-error :messages="$errors->get('password')" class="mt-2" /></div>
+            <div><x-input-label for="password_confirmation" value="تأكيد كلمة المرور (إجباري)" /><x-text-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" /></div>
+            <div class="flex items-center justify-between pt-2"><a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('login') }}">لديك حساب بالفعل؟ دخول</a><x-primary-button>إنشاء حساب الصيدلية</x-primary-button></div>
+        </form>
+    @else
+        <form method="POST" action="{{ route('register') }}">@csrf
+            <div><x-input-label for="name" :value="__('Name')" /><x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" /><x-input-error :messages="$errors->get('name')" class="mt-2" /></div>
+            <div class="mt-4"><x-input-label for="email" :value="__('Email')" /><x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" autocomplete="username" /><x-input-error :messages="$errors->get('email')" class="mt-2" /></div>
+            <div class="mt-4"><x-input-label for="password" :value="__('Password')" /><x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" /><x-input-error :messages="$errors->get('password')" class="mt-2" /></div>
+            <div class="mt-4"><x-input-label for="password_confirmation" :value="__('Confirm Password')" /><x-text-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" /></div>
+            <div class="flex items-center justify-end mt-4"><a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('login') }}">{{ __('Already registered?') }}</a><x-primary-button class="ms-4">{{ __('Register') }}</x-primary-button></div>
+        </form>
+    @endif
 </x-guest-layout>

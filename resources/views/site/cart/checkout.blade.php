@@ -41,7 +41,28 @@
             {{-- Customer details --}}
             <div class="col-lg-7">
                 <div class="bg-white border rounded-4 p-4">
-                    <h5 class="fw-bold mb-3">{{ __('site.order_details') }}</h5>
+                                        <h5 class="fw-bold mb-3">{{ __('site.order_details') }}</h5>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">اختر الصيدلية المناسبة <span class="text-danger">*</span></label>
+                        <p class="small text-muted">تظهر فقط الصيدليات التي يتوفر لديها كامل طلبك. اختر الأقرب لك حسب العنوان.</p>
+                        @forelse ($pharmacies as $pharmacy)
+                            <label class="d-flex align-items-start gap-3 border rounded-3 p-3 mb-2" style="cursor:pointer">
+                                <input class="form-check-input mt-1" type="radio" name="pharmacy_id" value="{{ $pharmacy->id }}" @checked(old('pharmacy_id') == $pharmacy->id) required>
+                                <span class="flex-grow-1"><strong class="d-block text-ph"><i class="fas fa-clinic-medical"></i> {{ $pharmacy->trans_name }}</strong><small class="text-muted"><i class="fas fa-location-dot"></i> {{ $pharmacy->address ?: 'العنوان غير مسجل' }}</small></span>
+                                <span class="text-start">
+                                    @if ($pharmacy->quote_visible)
+                                        <strong class="d-block text-ph">{{ number_format($pharmacy->quote_total, 2) }}</strong><small class="text-muted">سعر الطلب</small>
+                                    @else
+                                        <small class="text-muted">السعر عند التواصل</small>
+                                    @endif
+                                </span>
+                            </label>
+                        @empty
+                            <div class="alert alert-warning mb-0">لا توجد صيدلية واحدة يتوفر لديها كامل الطلب حاليًا. عدّل السلة أو تواصل معنا.</div>
+                        @endforelse
+                        @error('pharmacy_id')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                    </div>
 
                     <div class="mb-3">
                         <label class="form-label">{{ __('site.your_name') }} <span class="text-danger">*</span></label>
@@ -83,8 +104,10 @@
 
                     @foreach ($items as $item)
                         <div class="d-flex align-items-center gap-3 mb-3">
-                            <img src="{{ $item->product->img_path }}" alt="{{ $item->product->trans_name }}"
-                                 width="52" height="52" style="object-fit:cover;border-radius:.5rem;background:var(--ph-soft)">
+                            @if ($item->product->img_path)
+                                <img src="{{ $item->product->img_path }}" alt="{{ $item->product->trans_name }}"
+                                     width="52" height="52" style="object-fit:cover;border-radius:.5rem;background:var(--ph-soft)">
+                            @endif
                             <div class="flex-grow-1 min-w-0">
                                 <div class="small fw-semibold text-truncate">{{ $item->product->trans_name }}</div>
                                 <div class="small text-muted">{{ __('site.quantity') }}: {{ $item->quantity }}</div>
@@ -111,7 +134,7 @@
                         </p>
                     @endunless
 
-                    <button type="submit" class="btn btn-ph w-100 rounded-pill py-2 fw-bold mt-3">
+                    <button type="submit" @disabled($pharmacies->isEmpty()) class="btn btn-ph w-100 rounded-pill py-2 fw-bold mt-3">
                         <i class="fas fa-check"></i> {{ __('site.confirm_order') }}
                     </button>
                     <a href="{{ route('medicines.index') }}" class="btn btn-link w-100 text-muted btn-sm mt-1">

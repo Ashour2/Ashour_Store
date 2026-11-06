@@ -16,6 +16,7 @@ class Product extends Model
     protected $casts = [
         'requires_prescription' => 'boolean',
         'show_price' => 'boolean',
+        'is_active' => 'boolean',
         'expiry_date' => 'date',
     ];
 
@@ -25,7 +26,21 @@ class Product extends Model
     }
 
     function getInStockAttribute() {
-        return (int) $this->quantity > 0;
+        return $this->available_quantity > 0;
+    }
+
+    /** A cart must be fulfillable by one eligible pharmacy, not several combined. */
+    function getAvailableQuantityAttribute(): int {
+        $this->loadMissing('pharmacies');
+        if ($this->pharmacies->isEmpty()) {
+            return max(0, (int) $this->quantity);
+        }
+
+        return (int) $this->pharmacies->filter(fn ($pharmacy) => $pharmacy->is_active
+            && $pharmacy->subscription_status !== 'suspended'
+            && (! $pharmacy->subscription_ends_at || $pharmacy->subscription_ends_at->gte(today()))
+            && $pharmacy->pivot->is_allowed && $pharmacy->pivot->is_available)
+            ->max('pivot.quantity');
     }
 
     // Bilingual contraindications and warnings (stored as JSON like name/description).
@@ -47,7 +62,7 @@ class Product extends Model
      */
     function pharmacies() {
         return $this->belongsToMany(Pharmacy::class, 'pharmacy_product')
-            ->withPivot('quantity')
+            ->withPivot('quantity', 'is_allowed', 'is_available', 'price', 'show_price', 'notes')
             ->withTimestamps();
     }
 
@@ -66,7 +81,12 @@ class Product extends Model
             return $query->whereRaw('1 = 0');
         }
 
-        return $query->whereHas('pharmacies', fn ($pharmacies) => $pharmacies->whereKey($user->pharmacy_id));
+        return $query->whereHas('pharmacies', fn ($pharmacies) => $pharmacies->whereKey($user->pharmacy_id)->where('pharmacy_product.is_allowed', true));
+    }
+
+    /** Products allowed to appear on the public pharmacy site. */
+    function scopePubliclyVisible($query) {
+        return $query->where('is_active', true);
     }
 
     /** Total units across every branch holding this medicine. */
@@ -118,9 +138,7 @@ class Product extends Model
     }
 
     function image() {
-        return $this->morphOne(Image::class, 'imageable')->withDefault([
-            'path' => 'no-image.png'
-        ])->where('type', 'main');
+        return $this->morphOne(Image::class, 'imageable')->where('type', 'main');
     }
 
     function gallery() {
@@ -136,13 +154,7 @@ class Product extends Model
     }
 
     function getImgPathAttribute() {
-        $url = 'https://via.placeholder.com/100x80';
-
-        if($this->image) {
-            $url = asset('images/'. $this->image->path);
-        }
-
-        return $url;
+        return $this->image?->path ? asset('images/'. $this->image->path) : null;
     }
 }
 

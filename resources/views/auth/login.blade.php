@@ -302,7 +302,7 @@
             <h2 class="info">Login Now</h2>
             <br>
             <h2 class="success">Success!</h2>
-            <input type="email" placeholder="email" name="email" value="{{ old('email') }}"  required="required" />
+            <input type="text" placeholder="البريد الإلكتروني أو رقم هاتف الصيدلية" name="email" value="{{ old('email') }}" required="required" />
             <input type="password" id="password" name="password" placeholder="Password" required autocomplete="current-password" />
             <div class="allsub">
                 <div class="submit">Login</div>

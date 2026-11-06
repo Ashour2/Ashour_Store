@@ -46,7 +46,7 @@ class PharmacyStockTest extends TestCase
         return Product::create([
             'name'        => json_encode(['en' => 'Panadol', 'ar' => 'بنادول'], JSON_UNESCAPED_UNICODE),
             'description' => json_encode(['en' => 'Pain relief', 'ar' => 'مسكن'], JSON_UNESCAPED_UNICODE),
-            'price'       => 15, 'quantity' => 30,
+            'price'       => 15, 'quantity' => 30, 'is_active' => true,
         ]);
     }
 

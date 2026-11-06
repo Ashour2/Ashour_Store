@@ -28,6 +28,7 @@ class UserController extends Controller
             'user'  => new User(),
             'roles' => $this->assignableRoles(),
             'pharmacies' => Pharmacy::orderBy('id')->get(),
+            'warehouses' => \App\Models\Warehouse::orderBy('name')->get(),
         ]);
     }
 
@@ -39,6 +40,7 @@ class UserController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'role_id'  => ['required', Rule::in($this->assignableRoles()->pluck('id'))],
             'pharmacy_id' => 'nullable|exists:pharmacies,id',
+            'warehouse_id' => 'nullable|exists:warehouses,id',
         ]);
 
         $data = $this->pharmacyForRole($data);
@@ -59,6 +61,7 @@ class UserController extends Controller
             'user'  => $user,
             'roles' => $this->assignableRoles(),
             'pharmacies' => Pharmacy::orderBy('id')->get(),
+            'warehouses' => \App\Models\Warehouse::orderBy('name')->get(),
         ]);
     }
 
@@ -72,6 +75,7 @@ class UserController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
             'role_id'  => ['required', Rule::in($this->assignableRoles()->pluck('id'))],
             'pharmacy_id' => 'nullable|exists:pharmacies,id',
+            'warehouse_id' => 'nullable|exists:warehouses,id',
         ]);
 
         $data = $this->pharmacyForRole($data);
@@ -136,6 +140,12 @@ class UserController extends Controller
         if (! $isPharmacist) {
             $data['pharmacy_id'] = null;
         }
+
+        $isWarehouse = Role::whereKey($data['role_id'])->value('slug') === Role::WAREHOUSE;
+        if ($isWarehouse && empty($data['warehouse_id'])) {
+            throw ValidationException::withMessages(['warehouse_id' => 'اختر المستودع المرتبط بهذا الحساب.']);
+        }
+        if (! $isWarehouse) $data['warehouse_id'] = null;
 
         return $data;
     }

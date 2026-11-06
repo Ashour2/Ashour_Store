@@ -75,12 +75,6 @@ class Category extends Model
     }
     // img_path
     function getImgPathAttribute() {
-        $url = 'https://via.placeholder.com/100x80';
-
-        if($this->image) {
-            $url = asset('images/'. $this->image->path);
-        }
-
-        return $url;
+        return $this->image?->path ? asset('images/'. $this->image->path) : null;
     }
 }

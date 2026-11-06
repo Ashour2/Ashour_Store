@@ -82,7 +82,7 @@ class CartService
             return collect();
         }
 
-        $products = Product::with('image')->whereIn('id', array_keys($items))->get()->keyBy('id');
+        $products = Product::publiclyVisible()->with(['image', 'pharmacies'])->whereIn('id', array_keys($items))->get()->keyBy('id');
 
         // Forget lines whose medicine no longer exists
         $missing = array_diff(array_keys($items), $products->keys()->all());
@@ -138,8 +138,8 @@ class CartService
      */
     protected function cap(Product $product, int $quantity): int
     {
-        if ($product->show_stock && $product->quantity > 0) {
-            return min($quantity, (int) $product->quantity);
+        if ($product->show_stock) {
+            return min($quantity, $product->available_quantity);
         }
 
         return $quantity;

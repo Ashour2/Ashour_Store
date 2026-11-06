@@ -43,13 +43,13 @@
                     <span class="badge badge-info">{{ __('admin.you') }}</span>
                 @endif
             </td>
-            <td>{{ $user->pharmacy_id ? $user->pharmacy->trans_name : '—' }}</td>
             <td><span dir="ltr">{{ $user->email }}</span></td>
             <td>
                 <span class="badge badge-{{ $user->role->is_super_admin ? 'danger' : 'secondary' }}">
                     {{ $user->role->trans_name }}
                 </span>
             </td>
+            <td>{{ $user->pharmacy_id ? $user->pharmacy->trans_name : '—' }}</td>
             <td>{{ $user->created_at?->format('Y-m-d') }}</td>
             <td>
                 @if ($user->role->is_super_admin)

@@ -20,6 +20,7 @@ class Role extends Model
     const SUPER_ADMIN = 'super_admin';
     const ADMIN = 'admin';
     const PHARMACIST = 'pharmacist';
+    const WAREHOUSE = 'warehouse';
 
     function users() {
         return $this->hasMany(User::class);

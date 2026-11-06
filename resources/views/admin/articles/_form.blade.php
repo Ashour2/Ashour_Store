@@ -31,6 +31,22 @@
 
     <div class="col-md-6">
         <div class="mb-3">
+            <label>خط المقال في الموقع</label>
+            <select name="font_family" class="form-control">
+                <option value="cairo" @selected(old('font_family', $article->font_family ?: 'cairo') === 'cairo')>Cairo — واضح عربي</option>
+                <option value="tajawal" @selected(old('font_family', $article->font_family) === 'tajawal')>Tajawal — ناعم</option>
+                <option value="serif" @selected(old('font_family', $article->font_family) === 'serif')>Serif — مقالات مطوّلة</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label>حجم الخط في الموقع</label>
+            <select name="font_size" class="form-control">
+                @foreach (['small' => 'صغير', 'medium' => 'متوسط', 'large' => 'كبير', 'xlarge' => 'كبير جداً'] as $value => $label)
+                    <option value="{{ $value }}" @selected(old('font_size', $article->font_size ?: 'medium') === $value)>{{ $label }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="mb-3">
             <label>{{ __('admin.image') }}</label>
             <input type="file" onchange="showImg(event)" name="image" class="form-control @error('image') is-invalid @enderror">
             @error('image')<small class="invalid-feedback">{{ $message }}</small>@enderror

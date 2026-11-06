@@ -14,8 +14,16 @@ class Article extends Model
 
     protected $casts = [
         'is_published' => 'boolean',
+        'font_size' => 'string',
+        'font_family' => 'string',
     ];
 
+    public function getStyleClassAttribute(): string
+    {
+        $font = in_array($this->font_family, ['cairo', 'tajawal', 'serif'], true) ? $this->font_family : 'cairo';
+        $size = in_array($this->font_size, ['small', 'medium', 'large', 'xlarge'], true) ? $this->font_size : 'medium';
+        return "article-font-{$font} article-size-{$size}";
+    }
     function image() {
         return $this->morphOne(Image::class, 'imageable')->withDefault([
             'path' => 'no-image.png',

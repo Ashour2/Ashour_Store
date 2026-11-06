@@ -3,9 +3,11 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Models\Category;
 use App\Services\CartService;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,7 +25,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Paginator::useBootstrapFive();
+Paginator::useBootstrapFive();
+
+        View::composer('site.partials.navbar', function ($view) {
+            $view->with('navCategories', Category::with('image')
+                ->whereHas('products', fn ($products) => $products->publiclyVisible())
+                ->latest('id')->get());
+        });
 
         /**
          * Permission codes double as gate abilities, so can('products.edit')
@@ -39,6 +47,8 @@ class AppServiceProvider extends ServiceProvider
             if ($user->isSuperAdmin()) {
                 return true;
             }
+
+            if ($user->isWarehouse()) return $ability === 'dashboard.view';
 
             return $user->hasPermission($ability) ? true : null;
         });

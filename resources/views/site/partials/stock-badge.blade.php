@@ -3,7 +3,7 @@
         <span class="badge bg-success-subtle text-success border border-success-subtle">
             <i class="fas fa-circle-check"></i>
             {{ __('site.in_stock') }}
-            @if ($medicine->stock_display === 'quantity')
+            @if ($medicine->stock_display === 'quantity' && $medicine->pharmacies->isEmpty())
                 ({{ $medicine->quantity }})
             @endif
         </span>

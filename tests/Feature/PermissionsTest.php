@@ -55,12 +55,12 @@ class PermissionsTest extends TestCase
             $this->assertContains($expected, $groups, "missing permissions for $expected");
         }
 
-        $this->assertSame(33, Permission::count());
+        $this->assertSame(34, Permission::count());
     }
 
-    public function test_the_three_roles_are_seeded(): void
+    public function test_the_four_roles_are_seeded(): void
     {
-        $this->assertSame(3, Role::count());
+        $this->assertSame(4, Role::count());
 
         $owner = Role::where('slug', Role::SUPER_ADMIN)->first();
         $this->assertTrue($owner->is_locked);
@@ -101,6 +101,32 @@ class PermissionsTest extends TestCase
     }
 
     // --- The pharmacist is really limited ---
+
+    public function test_pharmacist_can_edit_categories_but_cannot_delete_them(): void
+    {
+        $user = $this->userWithRole(Role::PHARMACIST);
+        $category = \App\Models\Category::create(['name' => '{"en":"Original","ar":"قديم"}', 'description' => '{}']);
+        $this->actingAs($user)->get(route('admin.categories.index'))->assertOk()
+            ->assertSee(route('admin.categories.edit', $category), false)
+            ->assertDontSee('name="_method" value="delete"', false);
+        $this->get(route('admin.categories.edit', $category))->assertOk();
+        $this->put(route('admin.categories.update', $category), ['name_en' => 'Updated', 'name_ar' => 'معدل', 'home_display_order' => 2])
+            ->assertSessionHasNoErrors()->assertRedirect(route('admin.categories.index'));
+        $this->assertSame('Updated', $category->fresh()->name_en);
+        $this->delete(route('admin.categories.destroy', $category))->assertForbidden();
+        $this->assertModelExists($category);
+    }
+
+    public function test_migration_grants_category_edit_to_existing_pharmacist_role(): void
+    {
+        $role = Role::where('slug', Role::PHARMACIST)->firstOrFail();
+        $ids = Permission::whereIn('code', ['categories.view', 'categories.edit'])->pluck('id');
+        $role->permissions()->detach($ids);
+        $migration = require database_path('migrations/2026_10_24_120000_grant_pharmacist_category_edit_permission.php');
+        $migration->up();
+        $migration->up();
+        $this->assertSame(2, $role->permissions()->whereIn('permissions.id', $ids)->count());
+    }
 
     public function test_a_pharmacist_reaches_only_what_its_role_allows(): void
     {

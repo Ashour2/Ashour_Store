@@ -1,5 +1,14 @@
 @csrf
 
+<div class="form-group">
+    <label for="user-warehouse">المستودع (لحسابات المستودعات فقط)</label>
+    <select id="user-warehouse" name="warehouse_id" class="form-control @error('warehouse_id') is-invalid @enderror">
+        <option value="">— اختر المستودع —</option>
+        @foreach($warehouses as $warehouse)<option value="{{ $warehouse->id }}" @selected(old('warehouse_id', $user->warehouse_id) == $warehouse->id)>{{ $warehouse->name }}</option>@endforeach
+    </select>
+    @error('warehouse_id')<small class="invalid-feedback">{{ $message }}</small>@enderror
+</div>
+
 <div class="form-row">
     <div class="form-group col-md-6">
         <label>{{ __('admin.name') }} <span class="text-danger">*</span></label>

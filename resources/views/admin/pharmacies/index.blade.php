@@ -57,6 +57,11 @@
                 <a class="btn btn-sm btn-primary" href="{{ route('admin.pharmacies.edit', $pharmacy->id) }}">
                     <i class="fas fa-edit"></i>
                 </a>
+                @if (auth()->user()->isSuperAdmin() && $pharmacy->users_count)
+                    <form class="d-inline" action="{{ route('admin.pharmacies.impersonate', $pharmacy) }}" method="POST" onsubmit="return confirm('سيتم الدخول إلى حساب هذه الصيدلية. متابعة؟');">
+                        @csrf <button class="btn btn-sm btn-warning" title="الدخول كصيدلي"><i class="fas fa-user-secret"></i></button>
+                    </form>
+                @endif
                 @if ($pharmacy->wa_phone)
                     <a class="btn btn-sm btn-success" target="_blank" href="https://wa.me/{{ $pharmacy->wa_phone }}">
                         <i class="fab fa-whatsapp"></i>
@@ -72,7 +77,7 @@
             </td>
         </tr>
     @empty
-        <tr><td colspan="7" class="text-center">{{ __('admin.no_pharmacies') }}</td></tr>
+        <tr><td colspan="10" class="text-center">{{ __('admin.no_pharmacies') }}</td></tr>
     @endforelse
 </table>
 {{ $pharmacies->links() }}

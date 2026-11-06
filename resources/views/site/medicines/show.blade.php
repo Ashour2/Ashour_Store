@@ -18,6 +18,7 @@
 
     <div class="row g-4">
         {{-- Image + gallery --}}
+        @if ($medicine->img_path)
         <div class="col-lg-5">
             <div class="bg-white border rounded-4 p-3 text-center">
                 <img id="mainImg" src="{{ $medicine->img_path }}" alt="{{ $medicine->trans_name }}"
@@ -35,8 +36,9 @@
             @endif
         </div>
 
+        @endif
         {{-- Details --}}
-        <div class="col-lg-7">
+        <div class="{{ $medicine->img_path ? 'col-lg-7' : 'col-12' }}">
             <div class="d-flex gap-2 mb-2">
                 @if ($medicine->category_id)
                     <span class="badge bg-light text-ph">{{ $medicine->category->trans_name }}</span>

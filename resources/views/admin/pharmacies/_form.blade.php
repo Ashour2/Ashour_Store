@@ -29,6 +29,12 @@
     </div>
 </div>
 
+<div class="form-row">
+    <div class="form-group col-md-4"><label>خطة الاشتراك</label><input type="text" name="subscription_plan" value="{{ old('subscription_plan', $pharmacy->subscription_plan) }}" class="form-control" placeholder="مثال: شهري"></div>
+    <div class="form-group col-md-4"><label>حالة الاشتراك</label><select name="subscription_status" class="form-control"><option value="active" @selected(old('subscription_status', $pharmacy->subscription_status ?: 'active') === 'active')>نشط</option><option value="trial" @selected(old('subscription_status', $pharmacy->subscription_status) === 'trial')>تجريبي</option><option value="suspended" @selected(old('subscription_status', $pharmacy->subscription_status) === 'suspended')>معلّق</option></select></div>
+    <div class="form-group col-md-4"><label>ينتهي الاشتراك في</label><input type="date" name="subscription_ends_at" value="{{ old('subscription_ends_at', optional($pharmacy->subscription_ends_at)->format('Y-m-d')) }}" class="form-control"></div>
+</div>
+
 <div class="form-group">
     <div class="custom-control custom-switch">
         <input type="checkbox" class="custom-control-input" id="is_active" name="is_active" value="1"

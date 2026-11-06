@@ -85,4 +85,11 @@ class Order extends Model
 
         return 'https://wa.me/' . $phone . '?text=' . urlencode($this->whatsappText());
     }
+    function pharmacy() {
+        return $this->belongsTo(Pharmacy::class)->withDefault();
+    }
+
+    function pharmacyWhatsappLink(): string {
+        return $this->whatsappLink($this->pharmacy?->phone);
+    }
 }

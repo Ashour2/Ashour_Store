@@ -21,6 +21,7 @@
         <th>{{ __('admin.name') }}</th>
         <th>{{ __('admin.phone') }}</th>
         <th>{{ __('admin.medicine') }}</th>
+        <th>{{ __('admin.prescription') }}</th>
         <th>{{ __('admin.status') }}</th>
         <th>{{ __('admin.date') }}</th>
         <th>{{ __('admin.actions') }}</th>
@@ -31,6 +32,15 @@
         <td>{{ $consultation->name }}</td>
         <td>{{ $consultation->phone }}</td>
         <td>{{ $consultation->product_id ? $consultation->product->trans_name : '—' }}</td>
+        <td>
+            @if ($consultation->prescription)
+                <a href="{{ $consultation->prescription_url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-file-prescription"></i>
+                </a>
+            @else
+                <span class="text-muted">—</span>
+            @endif
+        </td>
         <td>
             @if ($consultation->status == 'new')
                 <span class="badge badge-warning">{{ __('admin.new') }}</span>
@@ -51,7 +61,7 @@
     </tr>
     @empty
     <tr>
-        <td colspan="7" class="text-center">{{ __('admin.no_data') }}</td>
+        <td colspan="8" class="text-center">{{ __('admin.no_data') }}</td>
     </tr>
     @endforelse
 </table>

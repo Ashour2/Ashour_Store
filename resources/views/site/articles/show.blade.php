@@ -21,7 +21,7 @@
                 <img src="{{ $article->img_path }}" alt="{{ $article->trans_name }}" class="img-fluid rounded-4 mb-4 w-100" style="max-height:420px;object-fit:cover;">
             @endif
 
-            <div class="article-body" style="line-height:2;font-size:1.05rem;">
+            <div class="article-body {{ $article->style_class }}">
                 {!! nl2br(e($article->trans_description)) !!}
             </div>
         </div>

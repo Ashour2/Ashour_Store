@@ -18,6 +18,21 @@
         <hr>
         <p><strong>{{ __('admin.message') }}:</strong></p>
         <p class="text-muted">{{ $consultation->message }}</p>
+
+        @if ($consultation->prescription)
+            <hr>
+            <p><strong>{{ __('admin.prescription') }}:</strong></p>
+            @if ($consultation->prescription_is_image)
+                <a href="{{ $consultation->prescription_url }}" target="_blank">
+                    <img src="{{ $consultation->prescription_url }}" alt="prescription"
+                         style="max-width:320px;max-height:320px;border:1px solid #ddd;border-radius:8px;padding:4px;">
+                </a>
+            @else
+                <a href="{{ $consultation->prescription_url }}" target="_blank" class="btn btn-outline-primary">
+                    <i class="fas fa-file-pdf"></i> {{ __('admin.view_prescription') }}
+                </a>
+            @endif
+        @endif
     </div>
 </div>
 

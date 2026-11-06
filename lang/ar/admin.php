@@ -258,4 +258,7 @@ return [
     // Multi-picture slider
     "slider_images_hint" => "يمكنك اختيار أكثر من صورة دفعة واحدة (حتى 10 صور)، وستتناوب على الواجهة الرئيسية تلقائياً.",
     "slider_current_images" => "الصور الحالية — اضغط على أي صورة لحذفها عند الحفظ",
+
+    "prescription" => "الروشيتة",
+    "view_prescription" => "عرض الروشيتة",
 ];

@@ -50,7 +50,7 @@
                     <tr class="bg-light">
                         <th style="width:45%">{{ __('admin.pharmacy_name') }}</th>
                         <th>{{ __('admin.phone') }}</th>
-                        <th style="width:150px">{{ __('admin.quantity') }}</th>
+                        <th style="width:150px">{{ __('admin.quantity') }}</th><th style="width:170px">إتاحة للصيدلية</th>
                     </tr>
                     @foreach ($pharmacies as $pharmacy)
                         @php $quantity = old('quantities.' . $pharmacy->id, $held[$pharmacy->id] ?? null); @endphp
@@ -82,10 +82,18 @@
                                     <small class="invalid-feedback">{{ $message }}</small>
                                 @enderror
                             </td>
+                            <td>
+                                @php $isBlocked = in_array($pharmacy->id, old('blocked', $blocked->all())); @endphp
+                                <div class="custom-control custom-checkbox">
+                                    <input class="custom-control-input access-toggle" type="checkbox" id="blocked{{ $pharmacy->id }}" name="blocked[]" value="{{ $pharmacy->id }}" @checked($isBlocked)>
+                                    <label class="custom-control-label" for="blocked{{ $pharmacy->id }}">منع هذا الدواء</label>
+                                </div>
+                                <small class="text-muted">غير المحدد: ظاهر افتراضياً</small>
+                            </td>
                         </tr>
                     @endforeach
                     <tr class="font-weight-bold">
-                        <td colspan="2" class="text-right">{{ __('admin.branch_total') }}</td>
+                        <td colspan="3" class="text-right">{{ __('admin.branch_total') }}</td>
                         <td id="stockTotal">{{ $branch_total }}</td>
                     </tr>
                 </table>

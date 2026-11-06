@@ -3,7 +3,7 @@
 @section('title', __('site.order_placed'))
 
 @section('content')
-@php $wa = preg_replace('/[^0-9]/', '', setting('whatsapp_number')); @endphp
+@php $pharmacyWa = $order->pharmacy->wa_phone; @endphp
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-7">
@@ -12,7 +12,7 @@
                     <i class="fas fa-circle-check"></i>
                 </div>
                 <h3 class="fw-bold">{{ __('site.order_placed') }}</h3>
-                <p class="text-muted mb-3">{{ __('site.order_placed_hint') }}</p>
+                <p class="text-muted mb-3">تم إرسال طلبك إلى {{ $order->pharmacy->trans_name ?: 'الصيدلية المختارة' }}. ستتواصل معك الصيدلية لتأكيده.</p>
 
                 <div class="d-inline-block bg-ph-soft text-ph fw-bold rounded-pill px-4 py-2 mb-4">
                     {{ __('site.order_number') }}: <span dir="ltr">{{ $order->order_number }}</span>
@@ -35,10 +35,10 @@
                 </table>
 
                 <div class="d-flex gap-2 justify-content-center flex-wrap mt-4">
-                    @if ($wa)
-                        <a href="{{ $order->whatsappLink() }}" target="_blank" id="waOrder"
+                    @if ($pharmacyWa)
+                        <a href="{{ $order->pharmacyWhatsappLink() }}" target="_blank" id="waOrder"
                            class="btn btn-success btn-lg rounded-pill px-4">
-                            <i class="fab fa-whatsapp"></i> {{ __('site.send_order_whatsapp') }}
+                            <i class="fab fa-whatsapp"></i> إرسال الطلب إلى {{ $order->pharmacy->trans_name }}
                         </a>
                     @endif
                     <a href="{{ route('medicines.index') }}" class="btn btn-outline-secondary btn-lg rounded-pill px-4">

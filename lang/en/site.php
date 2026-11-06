@@ -99,4 +99,7 @@ return [
     // Prescription notice on the checkout page
     'rx_notice_title' => "Careful: this medicine needs a doctor's prescription",
     'rx_notice_body' => 'The pharmacist will ask you for it when contacting you to complete the order.',
+
+    'upload_prescription' => 'Upload prescription',
+    'prescription_hint' => 'Image or PDF of the prescription (optional, up to 4 MB).',
 ];

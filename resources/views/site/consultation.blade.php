@@ -24,7 +24,7 @@
 
             <div class="card border-0 shadow-sm rounded-4">
                 <div class="card-body p-4">
-                    <form action="{{ route('consultation.store') }}" method="POST" id="consultForm">
+                    <form action="{{ route('consultation.store') }}" method="POST" id="consultForm" enctype="multipart/form-data">
                         @csrf
                         @if ($product)
                             <input type="hidden" name="product_id" value="{{ $product->id }}">
@@ -52,10 +52,33 @@
                             @endif
 
                             <div class="col-12">
+                                <label class="form-label"><i class="fas fa-clinic-medical text-ph"></i> اختر الصيدلية المناسبة للاستشارة <span class="text-muted small">(اختياري)</span></label>
+                                <select name="pharmacy_id" class="form-select @error('pharmacy_id') is-invalid @enderror">
+                                    <option value="">دع مدير المنصة يوجّه الاستشارة</option>
+                                    @foreach ($pharmacies as $pharmacy)
+                                        <option value="{{ $pharmacy->id }}" @selected(old('pharmacy_id') == $pharmacy->id)>{{ $pharmacy->trans_name }} — {{ $pharmacy->address ?: 'العنوان غير مسجل' }}</option>
+                                    @endforeach
+                                </select>
+                                @error('pharmacy_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+
+                            <div class="col-12">
                                 <label class="form-label">{{ __('site.your_message') }}</label>
                                 <textarea name="message" id="f_message" rows="4"
                                           class="form-control @error('message') is-invalid @enderror" required>{{ old('message') }}</textarea>
                                 @error('message')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">
+                                    <i class="fas fa-file-prescription text-ph"></i>
+                                    {{ __('site.upload_prescription') }}
+                                    <span class="text-muted small">({{ __('site.optional') }})</span>
+                                </label>
+                                <input type="file" name="prescription" accept="image/*,application/pdf"
+                                       class="form-control @error('prescription') is-invalid @enderror">
+                                @error('prescription')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                <small class="text-muted">{{ __('site.prescription_hint') }}</small>
                             </div>
 
                             <div class="col-12 d-flex gap-2 flex-wrap">

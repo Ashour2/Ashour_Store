@@ -1,4 +1,8 @@
 <style>
+    .product-edit-form .col-md-4, .product-edit-form .col-md-6 { flex: 0 0 100%; max-width: 100%; }
+    .product-edit-form .mb-3 > label:not(.custom-control-label)::after { content: 'اختياري'; margin-right: 8px; padding: 2px 7px; border-radius: 10px; background: #e9ecef; color: #495057; font-size: .72rem; font-weight: normal; }
+    .product-edit-form .mb-3 > label.required-label::after { content: 'إجباري'; background: #fde2e2; color: #b42318; }
+    .product-edit-form .mb-3 > label { display: block; font-weight: 700; }
     /* Scrollable pharmacy picker: branch name + its quantity on one line */
     .pharmacy-scroll {
         max-height: 320px;
@@ -83,7 +87,7 @@
     @endif
     <div class="col-md-6">
         <div class="mb-3">
-            <label>English Name</label>
+            <label class="required-label">اسم الدواء بالإنجليزية</label>
             <input type="text" name="name_en" class="form-control @error('name_en') is-invalid @enderror" placeholder="English Name" value="{{ old('name_en', $product->name_en) }}" />
             @error('name_en')
                 <small class="invalid-feedback">{{ $message }}</small>
@@ -92,7 +96,7 @@
     </div>
        <div class="col-md-6">
         <div class="mb-3">
-            <label>Arabic Name</label>
+            <label class="required-label">اسم الدواء بالعربية</label>
             <input type="text" name="name_ar" class="form-control @error('name_ar') is-invalid @enderror" placeholder="English Name" value="{{ old('name_ar', $product->name_ar) }}" />
             @error('name_ar')
                 <small class="invalid-feedback">{{ $message }}</small>
@@ -103,7 +107,7 @@
 
     <div class="col-md-6">
         <div class="mb-3">
-            <label>Image</label>
+            <label class="optional-label">صورة الدواء</label>
             <input type="file" onchange="showImg(event)" name="image" class="form-control @error('image') is-invalid @enderror" />
             @error('image')
                 <small class="invalid-feedback">{{ $message }}</small>
@@ -114,13 +118,13 @@
                     $url = $product->img_path;
                 }
             @endphp
-            <img width="80" class="perv-img" id="preview" src="{{ $url }}" alt="">
+            <img width="80" class="perv-img {{ $url ? '' : 'd-none' }}" id="preview" src="{{ $url }}" alt="معاينة صورة الدواء">
         </div>
     </div>
 
     <div class="col-md-6">
         <div class="mb-3">
-            <label>Gallery</label>
+            <label>صور إضافية</label>
             <input type="file" name="gallery[]" multiple class="form-control @error('gallery') is-invalid @enderror" />
             @error('gallery')
                 <small class="invalid-feedback">{{ $message }}</small>
@@ -140,7 +144,7 @@
 
     <div class="col-md-6">
         <div class="mb-3">
-            <label>English Description</label>
+            <label class="required-label">الوصف بالإنجليزية</label>
             <textarea name="description_en" class="form-control @error('description_en') is-invalid @enderror" placeholder=" Description_en" rows="4">{{ old('description_en', $product->description_en) }}</textarea>
             @error('description_en')
                 <small class="invalid-feedback">{{ $message }}</small>
@@ -149,7 +153,7 @@
     </div>
     <div class="col-md-6">
         <div class="mb-3">
-            <label>Arabic Description</label>
+            <label class="required-label">الوصف بالعربية</label>
             <textarea name="description_ar" class="form-control @error('description_ar') is-invalid @enderror" placeholder=" Description_ar" rows="4">{{ old('description_ar', $product->description_ar) }}</textarea>
             @error('description_ar')
                 <small class="invalid-feedback">{{ $message }}</small>
@@ -160,7 +164,7 @@
 
     <div class="col-md-4">
         <div class="mb-3">
-            <label>{{ __('admin.price') }}</label>
+            <label class="required-label">السعر</label>
             <input type="number" step="0.01" name="price" class="form-control @error('price') is-invalid @enderror" placeholder="Price" value="{{ old('price', $product->price) }}" />
             @error('price')
                 <small class="invalid-feedback">{{ $message }}</small>
@@ -175,7 +179,7 @@
     </div>
     <div class="col-md-4">
         <div class="mb-3">
-            <label>{{ __('admin.quantity') }}</label>
+            <label class="required-label">الكمية</label>
             <input type="number" name="quantity" class="form-control @error('quantity') is-invalid @enderror" placeholder="Quantity" value="{{ old('quantity', $product->quantity) }}" />
             @error('quantity')
                 <small class="invalid-feedback">{{ $message }}</small>
@@ -190,7 +194,7 @@
     </div>
     <div class="col-md-4">
         <div class="mb-3">
-            <label>Category</label>
+            <label class="required-label">التصنيف</label>
             <select name="category_id" class="form-control @error('category_id') is-invalid @enderror">
                 @foreach ($categories as $category)
                     <option value="{{ $category->id }}" {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>{{ $category->trans_name }}</option>
@@ -202,7 +206,8 @@
         </div>
     </div>
 
-    {{-- ===== Medicine (pharmacy) fields ===== --}}
+    @unless (auth()->user()->isPharmacist())
+    {{-- ===== Medicine (manager-only) fields ===== --}}
     <div class="col-12"><hr><h6 class="mb-3">{{ __('admin.medicine_info') }}</h6></div>
 
     <div class="col-md-4">
@@ -255,6 +260,12 @@
             <input type="date" name="expiry_date" class="form-control" value="{{ old('expiry_date', optional($product->expiry_date)->format('Y-m-d')) }}" />
         </div>
     </div>
+    @endunless
+    @if (auth()->user()->isPharmacist())
+    <div class="col-12"><div class="alert alert-light border"><i class="fas fa-shield-halved"></i> المعلومات الدوائية التفصيلية يضيفها مدير المنصة فقط. يمكنك كتابة ملاحظاتك الداخلية للصيدلية.</div></div>
+    <div class="col-12"><div class="mb-3"><label>ملاحظات خاصة بصيدليتي</label><textarea name="pharmacy_notes" class="form-control" rows="4" placeholder="ملاحظات داخلية لا تظهر للمرضى"></textarea></div></div>
+    @endif
+
     {{-- Only managers choose pharmacy distributions. A pharmacist is assigned automatically. --}}
     @unless (auth()->user()->isPharmacist())
     {{-- ===== Which pharmacies stock this medicine (manager only) ===== --}}
@@ -541,5 +552,23 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     render();
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('productForm');
+    if (!form) return;
+    let changed = false;
+    form.addEventListener('input', () => changed = true);
+    form.addEventListener('change', () => changed = true);
+    form.addEventListener('submit', () => changed = false);
+    document.querySelectorAll('a[href]').forEach((link) => link.addEventListener('click', (event) => {
+        if (changed && !confirm('لديك تعديلات غير محفوظة. هل تريد المغادرة دون حفظها؟')) event.preventDefault();
+    }));
+    window.addEventListener('beforeunload', (event) => {
+        if (!changed) return;
+        event.preventDefault();
+        event.returnValue = '';
+    });
 });
 </script>

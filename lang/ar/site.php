@@ -99,4 +99,7 @@ return [
     // Prescription notice on the checkout page
     'rx_notice_title' => 'انتبه: هذا الدواء يحتاج إلى روشتة طبيب',
     'rx_notice_body' => 'سيطلبها منك الصيدلاني عند تواصله معك لإتمام الطلب.',
+
+    'upload_prescription' => 'ارفع الروشيتة',
+    'prescription_hint' => 'صورة أو PDF للوصفة الطبية (اختياري، حتى 4 ميجا).',
 ];

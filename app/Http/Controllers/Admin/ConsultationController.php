@@ -8,55 +8,46 @@ use Illuminate\Http\Request;
 
 class ConsultationController extends Controller
 {
-    /**
-     * List consultation requests (newest first).
-     */
-    public function index()
+    private function visibleConsultations(Request $request)
     {
-        $consultations = Consultation::with('product')->latest('id')->paginate(15);
-        $new_count = Consultation::where('status', 'new')->count();
+        $query = Consultation::with(['product', 'pharmacy'])->latest('id');
+        if ($request->user()->isPharmacist()) {
+            $query->where('pharmacy_id', $request->user()->pharmacy_id);
+        }
+        return $query;
+    }
 
+    private function ensureVisible(Request $request, Consultation $consultation): void
+    {
+        abort_unless(! $request->user()->isPharmacist() || $consultation->pharmacy_id === $request->user()->pharmacy_id, 403);
+    }
+
+    public function index(Request $request)
+    {
+        $query = $this->visibleConsultations($request);
+        $consultations = $query->paginate(15);
+        $new_count = (clone $query)->where('status', 'new')->count();
         return view('admin.consultations.index', compact('consultations', 'new_count'));
     }
 
-    /**
-     * Show a single consultation and its reply form.
-     */
-    public function show(Consultation $consultation)
+    public function show(Request $request, Consultation $consultation)
     {
+        $this->ensureVisible($request, $consultation);
         return view('admin.consultations.show', compact('consultation'));
     }
 
-    /**
-     * Save the pharmacist reply and mark as answered.
-     */
     public function update(Request $request, Consultation $consultation)
     {
-        $request->validate([
-            'reply' => 'required',
-        ]);
-
-        $consultation->update([
-            'reply' => $request->reply,
-            'status' => 'answered',
-        ]);
-
-        return redirect()
-            ->route('admin.consultations.index')
-            ->with('msg', 'Reply saved successfully')
-            ->with('type', 'success');
+        $this->ensureVisible($request, $consultation);
+        $request->validate(['reply' => 'required']);
+        $consultation->update(['reply' => $request->reply, 'status' => 'answered']);
+        return redirect()->route('admin.consultations.index')->with('msg', 'Reply saved successfully')->with('type', 'success');
     }
 
-    /**
-     * Delete a consultation.
-     */
-    public function destroy(Consultation $consultation)
+    public function destroy(Request $request, Consultation $consultation)
     {
+        $this->ensureVisible($request, $consultation);
         $consultation->delete();
-
-        return redirect()
-            ->route('admin.consultations.index')
-            ->with('msg', 'Consultation deleted successfully')
-            ->with('type', 'info');
+        return redirect()->route('admin.consultations.index')->with('msg', 'Consultation deleted successfully')->with('type', 'info');
     }
 }

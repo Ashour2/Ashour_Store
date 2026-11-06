@@ -1,9 +1,56 @@
 @extends('admin.master')
 
 @section('content')
-    <!-- Page Heading -->
-    <h1 class="h3 mb-4 text-gray-800">All Products</h1>
     @php $isPharmacist = auth()->user()->isPharmacist(); @endphp
+    <!-- Page Heading -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">All Products</h1>
+        <div>
+            @can('products.stock')
+                @unless ($isPharmacist ?? auth()->user()->isPharmacist())
+                <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#bulkPharmacyModal">
+                    <i class="fas fa-clinic-medical"></i> ربط كل الأدوية بالصيدليات
+                </button>
+                @endunless
+            @endcan
+            @can('products.create')
+                <a href="{{ route('admin.products.import.form') }}" class="btn btn-success">
+                    <i class="fas fa-file-excel"></i> استيراد من Excel
+                </a>
+            @endcan
+            @can('products.edit')
+                <form class="d-inline" action="{{ route('admin.products.activate-all') }}" method="POST" onsubmit="return confirm('هل أنت متأكد من تنشيط كل الأدوية؟ ستظهر جميعها في الموقع.');">
+                    @csrf
+                    @method('put')
+                    <button class="btn btn-success"><i class="fas fa-eye"></i> {{ $isPharmacist ? 'تفعيل توفر أدويتي' : 'تنشيط الكل' }}</button>
+                </form>
+                <form class="d-inline" action="{{ route('admin.products.deactivate-all') }}" method="POST" onsubmit="return confirm('هل أنت متأكد من إلغاء تنشيط كل الأدوية؟ ستختفي جميعها من الموقع.');">
+                    @csrf
+                    @method('put')
+                    <button class="btn btn-outline-secondary"><i class="fas fa-eye-slash"></i> {{ $isPharmacist ? 'إيقاف توفر أدويتي' : 'إلغاء تنشيط الكل' }}</button>
+                </form>
+            @endcan
+            @can('products.view')
+                <a href="{{ route('admin.products.export.excel') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-file-excel"></i> تصدير Excel
+                </a>
+                <a href="{{ route('admin.products.export.pdf') }}" target="_blank" class="btn btn-outline-danger">
+                    <i class="fas fa-file-pdf"></i> تصدير PDF
+                </a>
+            @endcan
+        </div>
+    </div>
+    <form method="GET" action="{{ route('admin.products.index') }}" class="mb-3" role="search">
+        <div class="input-group" style="max-width: 480px;">
+            <input type="search" name="q" value="{{ request('q') }}" class="form-control" placeholder="ابحث باسم الدواء أو المادة الفعالة أو الباركود">
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-primary" title="بحث عن الأدوية" aria-label="بحث عن الأدوية"><i class="fas fa-search"></i></button>
+            </div>
+            @if (request('q'))
+                <a href="{{ route('admin.products.index') }}" class="btn btn-outline-secondary">مسح</a>
+            @endif
+        </div>
+    </form>    @php $isPharmacist = auth()->user()->isPharmacist(); @endphp
     @if (session()->has('msg'))
         <div class="alert alert-{{ session('type') }} alert-dismissible fade show" role="alert">
             {{ session('msg') }}
@@ -20,11 +67,13 @@
             <th>Price</th>
             <th>Quantity</th>
             <th>Category</th>
+            <th>الحالة</th>
             @unless ($isPharmacist)<th>{{ __('admin.available_pharmacies') }}</th>@endunless
             @unless ($isPharmacist)<th>{{ __('admin.added_by') }}</th>@endunless
             <th>Actions</th>
         </tr>
         @forelse ($products as $product)
+            @php $ownStock = $isPharmacist ? $product->pharmacies->firstWhere('id', auth()->user()->pharmacy_id)?->pivot : null; @endphp
             <tr>
                 <td>{{ $loop->iteration }}</td>
                 <td>
@@ -32,11 +81,21 @@
                 </td>
                 {{-- <td>{{ $product->name }}</td> --}}
                 <td>{{ $product->trans_name }}</td>
-                <td>${{ $product->price }}</td>
-                <td>{{ $product->quantity }}</td>
+                <td>${{ $ownStock?->price ?? $product->price }}</td>
+                <td>{{ $ownStock?->quantity ?? $product->quantity }}</td>
                 {{-- <td>{{json_decode($product->category->name,true)[app()->getLocale()] ?? ""}}</td> --}}
 
                 <td> {{ $product->category->trans_name }}</td>
+                <td>
+                    @if ($isPharmacist)
+                    <span class="badge {{ $ownStock?->is_available && $ownStock?->quantity > 0 ? 'badge-success' : 'badge-secondary' }}">{{ $ownStock?->is_available && $ownStock?->quantity > 0 ? 'متوفر في صيدليتي' : 'غير متوفر في صيدليتي' }}</span>
+                    @unless($product->is_active)<small class="d-block text-muted">بانتظار تفعيل المدير للنشر</small>@endunless
+                    @else
+                    <span class="badge {{ $product->is_active ? 'badge-success' : 'badge-secondary' }}">
+                        {{ $product->is_active ? 'نشط' : 'غير نشط' }}
+                    </span>
+                    @endif
+                </td>
 
                 @unless ($isPharmacist)
                 {{-- Branches holding this medicine; click to see names + quantities --}}
@@ -58,6 +117,16 @@
                 @endunless
 
                 <td>
+                    @can('products.edit')
+                    <form class="d-inline" action="{{ route('admin.products.toggle-active', $product->id) }}" method="POST">
+                        @csrf
+                        @method('put')
+                        <button type="submit" class="btn btn-sm {{ $product->is_active ? 'btn-outline-secondary' : 'btn-success' }}"
+                                title="{{ $isPharmacist ? 'تغيير التوفر في صيدليتي' : ($product->is_active ? 'إخفاء من الموقع' : 'إظهار في الموقع') }}">
+                            <i class="fas {{ $product->is_active ? 'fa-eye-slash' : 'fa-eye' }}"></i>
+                        </button>
+                    </form>
+                    @endcan
                     @unless ($isPharmacist)
                     {{-- Where this medicine is held: branch names + quantities (manager only) --}}
                     <a class="btn btn-sm btn-warning position-relative"
@@ -81,12 +150,41 @@
             </tr>
         @empty
             <tr>
-                <td colspan="{{ $isPharmacist ? 7 : 9 }}" class="text-center">No Data Found</td>
+                <td colspan="{{ $isPharmacist ? 8 : 10 }}" class="text-center">No Data Found</td>
             </tr>
         @endforelse
 
     </table>
     {{ $products->links() }}
+
+    @unless ($isPharmacist)
+    <div class="modal fade" id="bulkPharmacyModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <form class="modal-content" method="POST" action="{{ route('admin.products.bulk-attach-pharmacies') }}">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title">ربط كل الأدوية بالصيدليات</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small">اختر الصيدليات. تُضاف كل الأدوية بكمية صفر، والروابط الموجودة لا تتكرر ولا تتغير كمياتها.</p>
+                    @forelse ($pharmacies as $pharmacy)
+                        <div class="custom-control custom-checkbox mb-2">
+                            <input class="custom-control-input" type="checkbox" name="pharmacy_ids[]" value="{{ $pharmacy->id }}" id="bulkPharmacy{{ $pharmacy->id }}">
+                            <label class="custom-control-label" for="bulkPharmacy{{ $pharmacy->id }}">{{ $pharmacy->trans_name }}</label>
+                        </div>
+                    @empty
+                        <p class="text-danger mb-0">لا توجد صيدليات نشطة.</p>
+                    @endforelse
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary" {{ $pharmacies->isEmpty() ? 'disabled' : '' }}>ربط الآن</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endunless
 
     @unless ($isPharmacist)
     {{-- Branch breakdown for each medicine on this page --}}

@@ -1,5 +1,34 @@
 <div class="wrapper">
 
+    <style>
+        .quick-actions-header-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin: 5px 4px;
+            padding: 7px 13px !important;
+            border-radius: 999px;
+            background: #28a745;
+            color: #fff !important;
+            font-size: .88rem;
+            line-height: 1;
+            box-shadow: none;
+        }
+        .quick-actions-header-button:hover,
+        .quick-actions-header-button:focus { background: #218838; color: #fff !important; }
+        .quick-actions-header-menu { min-width: 220px; padding: 6px; border: 1px solid #d9e8dc; box-shadow: 0 7px 20px rgba(15,23,42,.16); }
+        .quick-actions-header-menu .dropdown-item { padding: 9px 10px; border-radius: 5px; color: #275a37; }
+        .quick-actions-header-menu .dropdown-item:hover { background: #eaf7ee; color: #147437; }
+        .quick-actions-header-menu .dropdown-item i { width: 20px; }
+    </style>
+
+    @if (session('impersonator_id'))
+        <div style="position:fixed;z-index:3000;bottom:20px;left:20px;background:#f59e0b;color:#111;padding:8px 12px;border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.2)">
+            <form method="POST" action="{{ route('admin.impersonation.leave') }}">@csrf <button class="btn btn-sm btn-dark">الرجوع لحساب المدير</button></form>
+        </div>
+    @endif
+
     <!-- Navbar -->
     <nav class="main-header navbar navbar-expand navbar-white navbar-light">
         <!-- Left navbar links -->
@@ -30,6 +59,43 @@
                     @endforeach
                 </div>
             </li>
+
+            <li class="nav-item dropdown d-none d-sm-inline-block">
+                <a class="nav-link quick-actions-header-button dropdown-toggle" href="#" id="quickActionsDropdown" role="button"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-bolt"></i> ماذا تريد أن تفعل هنا؟
+                </a>
+                <div class="dropdown-menu quick-actions-header-menu" aria-labelledby="quickActionsDropdown">
+                    @can('pharmacies.create')
+                        <a class="dropdown-item" href="{{ route('admin.pharmacies.create') }}"><i class="fas fa-clinic-medical"></i> إضافة صيدلية</a>
+                    @endcan
+                    @if (Auth::user()->isPharmacist())
+                            <li class="nav-item">
+                                <a href="{{ route('admin.my-pharmacy.inventory') }}" class="nav-link">
+                                    <i class="fas fa-clinic-medical nav-icon" style="color: white"></i>
+                                    <p style="color: wheat">أدويتي في صيدليتي</p>
+                                </a>
+                            </li>
+                            @endif
+
+                            @can('products.create')
+                        <a class="dropdown-item" href="{{ route('admin.products.create') }}"><i class="fas fa-capsules"></i> إضافة دواء</a>
+                        <a class="dropdown-item" href="{{ route('admin.products.import.form') }}"><i class="fas fa-file-import"></i> استيراد أدوية</a>
+                    @endcan
+                    @can('categories.create')
+                        <a class="dropdown-item" href="{{ route('admin.categories.create') }}"><i class="fas fa-tags"></i> إضافة تصنيف</a>
+                    @endcan
+                    @can('articles.create')
+                        <a class="dropdown-item" href="{{ route('admin.articles.create') }}"><i class="fas fa-newspaper"></i> إضافة مقال</a>
+                    @endcan
+                    @can('settings.manage')
+                        <a class="dropdown-item" href="{{ route('admin.settings.edit') }}"><i class="fas fa-cog"></i> إعدادات الموقع</a>
+                    @endcan
+                    @can('orders.view')
+                        <a class="dropdown-item" href="{{ route('admin.orders.index') }}"><i class="fas fa-receipt"></i> الطلبات</a>
+                    @endcan
+                </div>
+            </li>
         </ul>
 
         <!-- Right navbar links -->
@@ -57,7 +123,7 @@
     </nav>
 
     <!-- Main Sidebar Container -->
-    <aside class="main-sidebar sidebar-dark-success elevation-4">
+    <aside id="sidebar_color" class="main-sidebar sidebar-dark-success elevation-4">
 
         <!-- Brand: the logo uploaded in the site settings -->
         <a href="{{ route('home') }}" class="brand-link" target="_blank" rel="noopener"
@@ -154,6 +220,15 @@
                                     <p style="color: wheat">{{ __('admin.all_products') }}</p>
                                 </a>
                             </li>
+                            @if (Auth::user()->isPharmacist())
+                            <li class="nav-item">
+                                <a href="{{ route('admin.my-pharmacy.inventory') }}" class="nav-link">
+                                    <i class="fas fa-clinic-medical nav-icon" style="color: white"></i>
+                                    <p style="color: wheat">أدويتي في صيدليتي</p>
+                                </a>
+                            </li>
+                            @endif
+
                             @can('products.create')
                             <li class="nav-item">
                                 <a href="{{ route('admin.products.create') }}" class="nav-link">
@@ -180,6 +255,15 @@
                                     <span class="badge badge-info right">{{ $pharmacies_count }}</span>
                                 @endif
                             </p>
+                        </a>
+                    </li>
+                    @endcan
+
+                    @can('pharmacies.edit')
+                    <li class="nav-item">
+                        <a href="{{ route('admin.pharmacies.subscriptions') }}" class="nav-link">
+                            <i class="nav-icon fas fa-credit-card" style="color: white"></i>
+                            <p style="color: wheat">إدارة الاشتراكات</p>
                         </a>
                     </li>
                     @endcan

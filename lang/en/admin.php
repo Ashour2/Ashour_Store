@@ -256,4 +256,7 @@ return [
     // Multi-picture slider
     "slider_images_hint" => "You can pick more than one picture at a time (up to 10); the homepage fades through them.",
     "slider_current_images" => "Current pictures — click one to drop it when you save",
+
+    "prescription" => "Prescription",
+    "view_prescription" => "View prescription",
 ];
